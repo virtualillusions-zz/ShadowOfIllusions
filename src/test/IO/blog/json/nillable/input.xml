@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer id="123" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <firstName>Jane</firstName>
+    <lastName xsi:nil="true"/>
+    <email>jdoe@example.com</email>
+</customer>
