@@ -13,15 +13,14 @@ import com.jme3.input.InputManager;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.spectre.app.SpectreAbstractController;
-
 import com.spectre.controller.character.gui.CardGUIController;
 import com.spectre.director.Director;
 import com.spectre.util.Buttons;
 import java.io.IOException;
 
 /**
- * This Controller is used to handle all player information
- * TODO: UPDATE 
+ * This Controller is used to handle all player information TODO: UPDATE
+ *
  * @author Kyle Williams
  */
 public class SpectrePlayerController extends SpectreAbstractController implements Savable {
@@ -34,7 +33,8 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
     /**
      * The Highest Score the player has
-     * @return 
+     *
+     * @return
      */
     public int getPlayerHighScore() {
         return playerhighScore;
@@ -42,7 +42,8 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
     /**
      * Sets a new high score if higher than the current
-     * @param newHighScore 
+     *
+     * @param newHighScore
      */
     public void setPlayerNewHighScore(int newHighScore) {
         playerhighScore = newHighScore > playerhighScore ? newHighScore : playerhighScore;
@@ -50,6 +51,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
     /**
      * Creates a New Player
+     *
      * @param name
      */
     public SpectrePlayerController(String name) {
@@ -73,13 +75,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
         enableInput(true);
 
-
-        for (int i = 0; i < getModel().getNumControls(); i++) {
-            Control cont = getModel().getControl(i);
-            if (cont != this && cont instanceof SpectreAbstractController) {
-                ((SpectreAbstractController) cont).startUp();
-            }
-        }
+        setSpectreControllers(true);
 
         return this;
     }
@@ -92,17 +88,31 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         //Director.getPhysicsSpace().remove(spc);
         enableInput(false);
 
-        for (int i = 0; i < getModel().getNumControls(); i++) {
-            Control cont = getModel().getControl(i);
-            if (cont != this && cont instanceof SpectreAbstractController) {
-                ((SpectreAbstractController) cont).cleanUp();
-            }
-        }
+        setSpectreControllers(false);
 
     }
 
     /**
+     * Used to Start or Destroy attached Spectre Controls applied to the spatial
+     *
+     * @param isStartUp
+     */
+    public void setSpectreControllers(boolean isStartUp) {
+        for (int i = 0; i < getModel().getNumControls(); i++) {
+            Control cont = getModel().getControl(i);
+            if (cont != this && cont instanceof SpectreAbstractController) {
+                if (isStartUp == true) {
+                    ((SpectreAbstractController) cont).startUp();
+                } else {
+                    ((SpectreAbstractController) cont).cleanUp();
+                }
+            }
+        }
+    }
+
+    /**
      * Attaches this PlayerController to the specified model
+     *
      * @param spatial
      */
     public SpectrePlayerController setModel(String name) {
@@ -127,6 +137,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
     /**
      * Detaches this PlayerController from the controlled model
+     *
      * @param spatial
      */
     public void removeModel() {
@@ -138,6 +149,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
 
     /**
      * Returns the Spatial this Player is in control of
+     *
      * @return spatial
      */
     public Spatial getModel() {
@@ -164,6 +176,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
     /**
      * A class that handles the GUI of the cards shown in front of the player
      * Set in GameState
+     *
      * @return CardGUI
      */
     public com.spectre.controller.character.gui.CardGUIController getCardGUI() {

@@ -71,35 +71,35 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         switch (state) {
             case 1:
                 if (actionMode) {
-                    getAnimCont().changeAnimation("RunTop", AnimPriority.Movement);//Running
+                    getAnimCont().changeAnimation("RunTop", AnimPriority.MOVEMENT);//Running
                 } else if (highestSpeed == joggingSpeed) {//some issues here not working like it should
-                    getAnimCont().changeAnimation("RunBase", AnimPriority.Movement);//Joggin
+                    getAnimCont().changeAnimation("RunBase", AnimPriority.MOVEMENT);//Joggin
                 } else {
-                    getAnimCont().changeAnimation("SliceHorizontal", AnimPriority.Movement);//Walking
+                    getAnimCont().changeAnimation("SliceHorizontal", AnimPriority.MOVEMENT);//Walking
                     //System.out.println("SHOULD BE");
                 }
                 break;
             case 2:
-                getAnimCont().changeAnimation("JumpStart", AnimPriority.PreJump);
+                getAnimCont().changeAnimation("JumpStart", AnimPriority.PREJUMP);
                 getAnimCont().setAnimLock();//lock it here so start of jump depends on animation length
                 break;
             case 3:
                 if (isFalling()) {
-                    getAnimCont().changeAnimation("JumpLoop", AnimPriority.Falling);
+                    getAnimCont().changeAnimation("JumpLoop", AnimPriority.FALLING);
                 } else if (isJumping()) {
-                    getAnimCont().changeAnimation("SliceVertical", AnimPriority.Jumping);
+                    getAnimCont().changeAnimation("SliceVertical", AnimPriority.JUMPING);
                 }
                 break;
             case 4:
-                getAnimCont().changeAnimation("JumpEnd", AnimPriority.Landed);
+                getAnimCont().changeAnimation("JumpEnd", AnimPriority.LANDED);
                 getAnimCont().setAnimLock();//lock out movement until anim is done            
                 break;
             case 5:
-                getAnimCont().changeAnimation("HandsRelaxed", AnimPriority.ActionMovement);
+                getAnimCont().changeAnimation("HandsRelaxed", AnimPriority.ACTIONMOVEMENT);
                 getAnimCont().setAnimLock();//lock out movement until anim is done            
                 break;
             case 6:
-                getAnimCont().changeAnimation("HandsClosed", AnimPriority.ActionMovement);
+                getAnimCont().changeAnimation("HandsClosed", AnimPriority.ACTIONMOVEMENT);
                 getAnimCont().setAnimLock();//lock out movement until anim is done            
                 break;
         }
@@ -350,9 +350,13 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         special.zero();
 
         //SETUP RAGDOLLCONTROL
-        ragdoll = new KinematicRagdollControl(0.5f);
-        //ragdoll.addCollisionListener(this);
-        spatial.addControl(ragdoll);
+        if (spatial.getControl(KinematicRagdollControl.class) != null) {
+            ragdoll = spatial.getControl(KinematicRagdollControl.class);
+        } else {
+            ragdoll = new KinematicRagdollControl(0.5f);
+            //ragdoll.addCollisionListener(this);
+            spatial.addControl(ragdoll);
+        }
         Director.getPhysicsSpace().add(ragdoll);
         ragdoll.setEnabled(false);//by default set to false
 
@@ -360,11 +364,17 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         com.jme3.bounding.BoundingBox bb = (com.jme3.bounding.BoundingBox) spatial.getWorldBound();
         float diameter = bb.getXExtent() > bb.getZExtent() ? bb.getXExtent() : bb.getZExtent();
         float height = bb.getYExtent() / 2 - diameter / 4;
-        character = new CharacterControl(new CapsuleCollisionShape(diameter, height), height / 3);
+
+        if (spatial.getControl(CharacterControl.class) != null) {
+            character = spatial.getControl(CharacterControl.class);
+        } else {
+            character = new CharacterControl(new CapsuleCollisionShape(diameter, height), height / 3);
+            spatial.addControl(character);
+        }
         //character.setGravity(character.getGravity() * .1f);
         //character.setJumpSpeed();//height * 15f * 3);
         character.setFallSpeed(height * 15f * 3);
-        spatial.addControl(character);
+
         //Director.getPhysicsSpace().addCollisionListener(this);
         Director.getPhysicsSpace().add(character);
     }

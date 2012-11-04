@@ -26,16 +26,16 @@ import java.util.Collections;
 public class SpectreAnimationController extends SpectreAbstractController implements AnimEventListener {
 
     public enum AnimPriority {
-
-        Idle,
-        Movement,
-        Card,
-        ActionMovement,
-        PreJump,
-        Jumping,
-        Falling,
-        Landed,
-        Cinematics
+        DEBUG,
+        IDLE,
+        MOVEMENT,
+        CARD,
+        ACTIONMOVEMENT,
+        PREJUMP,
+        JUMPING,
+        FALLING,
+        LANDED,
+        CINEMATICS
     }
     private AnimControl control;
     private AnimChannel mainChannel;
@@ -174,7 +174,7 @@ public class SpectreAnimationController extends SpectreAbstractController implem
      * @param loopMode 
      */
     public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode) {
-        changeAnimation(animName, priority, 0.15f, loopMode);//use default blen time
+        changeAnimation(animName, priority, 0.15f, loopMode,1.0f,0f);//use default blen time
     }
 
     /**
@@ -184,17 +184,29 @@ public class SpectreAnimationController extends SpectreAbstractController implem
      * @param blendTime 
      */
     public void changeAnimation(String animName, AnimPriority priority, float blendTime) {
-        changeAnimation(animName, priority, blendTime, LoopMode.DontLoop);
+        changeAnimation(animName, priority, blendTime, LoopMode.DontLoop,1.0f,0f);
     }
 
     /**
      * Change currently playing animation if priority is higher
      * @param animName
      * @param priority
+     * @param loopMode
+     * @param speed
+     * @param startTime 
+     */
+    public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode,float speed,float startTime) {
+        changeAnimation(animName, priority, 0.15f, loopMode,speed,startTime);
+    }
+    
+    /**
+     * Change currently playing animation if priority is higher
+     * @param animName
+     * @param priority
      * @param blendTime 
      */
-    public void changeAnimation(String animName, AnimPriority priority, float blendTime, LoopMode loopMode) {
-        if (priority.ordinal() > currentPriority) {
+    public void changeAnimation(String animName, AnimPriority priority, float blendTime,LoopMode loopMode,float speed,float startTime) {
+        if (priority.ordinal() > currentPriority||priority.ordinal()==AnimPriority.DEBUG.ordinal()) {
             if (control.getAnim(animName) == null) {//if animation not present try and laod it
                 Animation a = Director.getAnimation(animName);
                 if (a == null) {
@@ -208,6 +220,8 @@ public class SpectreAnimationController extends SpectreAbstractController implem
             }
             mainChannel.setAnim(animName, blendTime);
             mainChannel.setLoopMode(loopMode);
+            mainChannel.setSpeed(speed);
+            mainChannel.setTime(startTime);
             currentPriority = priority.ordinal();
 
         }
@@ -230,7 +244,7 @@ public class SpectreAnimationController extends SpectreAbstractController implem
          */
         if (idleTimer >= .25f) {
             idleName = "Dance";
-            changeAnimation(idleName, AnimPriority.Idle, LoopMode.Loop);
+            changeAnimation(idleName, AnimPriority.IDLE, LoopMode.Loop);
         } else {
             idleTimer += tpf;
         }
@@ -261,7 +275,7 @@ public class SpectreAnimationController extends SpectreAbstractController implem
                 mainChannel = control.getChannel(0);
             }
             changeIdleState(1);
-            changeAnimation(idleName, AnimPriority.Idle);
+            changeAnimation(idleName, AnimPriority.IDLE);
             control.addListener(this);
             setUpBoneList();
         }

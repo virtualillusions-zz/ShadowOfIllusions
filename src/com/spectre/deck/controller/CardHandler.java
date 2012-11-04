@@ -9,6 +9,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.scene.Spatial;
+import com.spectre.controller.character.SpectreAnimationController;
 import com.spectre.deck.card.Animation;
 import com.spectre.deck.card.Card;
 
@@ -31,6 +32,7 @@ public class CardHandler implements AnimEventListener {
     private float timer;
     private boolean contact;
     private boolean isDone; //is this card finished updating
+    private SpectreAnimationController sac;
 
     public CardHandler(Card c, Spatial spatial) {
         card = c;
@@ -43,6 +45,7 @@ public class CardHandler implements AnimEventListener {
         contactEffect = new EffectHandler(card.getContactEffect());
         control = spat.getControl(com.jme3.animation.AnimControl.class);
         mainChannel = control.getChannel(0);
+        sac = spat.getControl(SpectreAnimationController.class);
         animInit();
         timer = 0;
     }
@@ -58,17 +61,13 @@ public class CardHandler implements AnimEventListener {
 
     private void animInit() {
         cardAnimPlaying = true;
-        mainChannel.setAnim(anim.getAnimationName());
-        mainChannel.setSpeed(anim.getSpeed());
-        mainChannel.setTime(anim.getStartTime());
-        mainChannel.setLoopMode(LoopMode.DontLoop);
+        sac.changeAnimation(anim.getAnimationName(), SpectreAnimationController.AnimPriority.CARD,LoopMode.DontLoop,anim.getSpeed(),anim.getStartTime());
         control.addListener(this);
     }
 
     @Override
     public void onAnimCycleDone(AnimControl ac, AnimChannel ac1, String string) {
         if (anim.getAnimationName().equals(string) && cardAnimPlaying == true) {
-            mainChannel.setSpeed(1f);//Return speed to normal 
             control.removeListener(this);
             cardAnimPlaying = false;
             //This has to be fixed for interruptions 

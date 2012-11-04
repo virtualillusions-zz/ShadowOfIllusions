@@ -17,7 +17,6 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
-import com.spectre.app.SpectreApplication;
 import com.spectre.controller.character.SpectrePhysicsController;
 import com.spectre.controller.character.SpectrePlayerController;
 import com.spectre.deck.SupplyDeck;
@@ -25,17 +24,19 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- *  TODO: whenever you load characters check for xml values basicSet, type and weapon
- *        SET ALL IN USERDATA OF SPATIAL. IDEALLY IT SHOULD BE ALREADY SET WITH SPATIAL.
- *  This Class holds all valuable information to allow the game to run properly
- *  @Note physics appState is found in this class called physicsDirector
- * @author Kyle Williams 
+ * TODO: whenever you load characters check for xml values basicSet, type and
+ * weapon SET ALL IN USERDATA OF SPATIAL. IDEALLY IT SHOULD BE ALREADY SET WITH
+ * SPATIAL. This Class holds all valuable information to allow the game to run
+ * properly
+ *
+ * @Note physics BulletAppState is found in this class called physicsDirector
+ * @author Kyle Williams
  */
 public final class Director extends com.spectre.app.SpectreState implements Savable {
 
     private static AppStateManager stateManager;
     private static FilterSubDirector filterDirector;
-    private static SpectreApplication application;
+    private static Application application;
     private static BulletAppState physicsDirector;
     private static HashMap<String, SpectrePhysicsController> characterList; //A loaded list of physics characters
     private static HashMap<String, Spatial> sceneList; //A loaded list of scenes
@@ -48,17 +49,22 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
     public void SpectreState(AppStateManager StateManager, Application app) {
         synchronized (this) {
             //Basic initializations
-            application = (SpectreApplication) app;
+            application = app;//Done to help in cases of Debugging so no cast
             stateManager = StateManager;
-            //Physics initializations
-            physicsDirector = new BulletAppState();
-            physicsDirector.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
-            stateManager.attach(physicsDirector);
+            //Physics initializations//also check to help in cases of debugging
+            if (app.getStateManager().getState(BulletAppState.class) != null) {
+                physicsDirector = app.getStateManager().getState(BulletAppState.class);
+            } else {
+                physicsDirector = new BulletAppState();
+                physicsDirector.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
+                stateManager.attach(physicsDirector);
+            }
         }
     }
 
     /**
      * Adds a new player to the game
+     *
      * @param player the name of the player
      */
     private static void addPlayer(String player) {
@@ -67,6 +73,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the player if one is not found creates a new instance
+     *
      * @param player the name of the player
      * @return PlayerController
      */
@@ -83,14 +90,16 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns VezlaApplication in order to make system related calls
+     *
      * @return application
      */
-    public static SpectreApplication getApp() {
-        return application;
+    public static com.spectre.app.SpectreApplication getApp() {
+        return (com.spectre.app.SpectreApplication) application;
     }
 
     /**
      * Returns the VezlaApplications Asset Manager
+     *
      * @return application
      */
     public static AssetManager getAssetManager() {
@@ -99,6 +108,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Controls all of the physics Handling in the Application
+     *
      * @see com.jme3.bullet.BulletAppState
      * @return physicsDirector
      */
@@ -111,7 +121,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
      * @return physicsSpace
      */
     public static com.jme3.bullet.PhysicsSpace getPhysicsSpace() {
-        return physicsDirector.getPhysicsSpace();
+        return getPhysicsDirector().getPhysicsSpace();
     }
 
     /**
@@ -123,6 +133,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * A Loaded List of all models
+     *
      * @param cL
      */
     public static void setCharacterList(HashMap<String, SpectrePhysicsController> cL) {
@@ -131,6 +142,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the characters Spatial Model
+     *
      * @param ID the name of the character
      * @return Spatial the characters spatial
      */
@@ -146,6 +158,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Sets the postProcessingManager for the game
+     *
      * @param filterDirector
      */
     public static void setFilterDirector(FilterSubDirector fD) {
@@ -154,6 +167,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the post Processing Manager for the game
+     *
      * @return FilterDirector
      */
     public static FilterSubDirector getFilterDirector() {
@@ -168,7 +182,8 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the Card
-     * @param ID the name of the Card 
+     *
+     * @param ID the name of the Card
      * @return Card
      */
     public static Card getCard(String ID) {
@@ -190,6 +205,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * A Loaded List of all models
+     *
      * @param cL
      */
     public static void setSceneList(HashMap<String, Spatial> sL) {
@@ -198,7 +214,8 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * A Loaded List of all Cards
-     * @param deck 
+     *
+     * @param deck
      */
     public static void setCardList(SupplyDeck deck) {
         cardList = deck;
@@ -206,7 +223,8 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * A Loaded List of all Cards
-     * @param deck 
+     *
+     * @param deck
      */
     public static SupplyDeck getCardList(HashMap<String, Card> deck) {
         return cardList;
@@ -214,6 +232,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * A Loaded List of all skeleton animations
+     *
      * @param aL
      */
     public static void setAnimationsList(HashMap<String, AnimData> aL) {
@@ -221,22 +240,24 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
     }
 
     /**
-     * Returns the first animation with animName
-     * Better to do this way so their can be duplicate idles and can link character animations as well
+     * Returns the first animation with animName Better to do this way so their
+     * can be duplicate idles and can link character animations as well
+     *
      * @param animName
      * @param spat
-     * @return 
+     * @return
      */
     public static AnimData getAnimations(String skeletonName) {
         return animationsList.get(skeletonName);
     }
 
     /**
-     * Returns the first animation with animName
-     * Better to do this way so their can be duplicate idles and can link character animations as well
+     * Returns the first animation with animName Better to do this way so their
+     * can be duplicate idles and can link character animations as well
+     *
      * @param animName
      * @param spat
-     * @return 
+     * @return
      */
     public static Animation getAnimation(String animName) {
         for (AnimData animData : animationsList.values()) {
@@ -250,12 +271,14 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
     }
 
     /**
-     * Returns the Animation of a specified skeleton with animName
-     * Better to do this way so their can be duplicate idles and can link character animations as well
+     * Returns the Animation of a specified skeleton with animName Better to do
+     * this way so their can be duplicate idles and can link character
+     * animations as well
+     *
      * @param skeletonName
      * @param animName
      * @param spat
-     * @return 
+     * @return
      */
     public static Animation getAnimation(String skeletonName, String animName) {
         for (Animation anim : animationsList.get(skeletonName).anims) {
@@ -268,6 +291,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the Scene's sceneController
+     *
      * @param ID the name of the Scene
      * @return ID the scenes controller
      */
@@ -283,6 +307,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
 
     /**
      * Returns the Totems's totemController
+     *
      * @param ID the name of the totem
      * @return ID the totem controller
      */
@@ -296,14 +321,18 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
         return sceneList.get(ID).getControl(com.spectre.controller.scene.TotemController.class);
     }
 
-    /**@see com.spectre.app.SpectreApplication#getModelNode()*/
+    /**
+     * @see com.spectre.app.SpectreApplication#getModelNode()
+     */
     public static com.jme3.scene.Node getModelNode() {
-        return application.getModelNode();
+        return getApp().getModelNode();
     }
 
-    /**@see com.spectre.app.SpectreApplication#getSceneNode()*/
+    /**
+     * @see com.spectre.app.SpectreApplication#getSceneNode()
+     */
     public static com.jme3.scene.Node getSceneNode() {
-        return application.getSceneNode();
+        return getApp().getSceneNode();
     }
 
     /**
