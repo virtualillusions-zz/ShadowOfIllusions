@@ -5,23 +5,28 @@
 package com.spectre.app;
 
 import com.jme3.app.Application;
-import com.jme3.app.state.AppStateManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.util.BufferUtils;
+import com.spectre.director.Director;
 
 /**
- * <code>SpectreApplication</code> extends the <code>Application</code> class
- * to provide functionality for all base elements of Spectre, and an accessible
- * root node that is updated and rendered regularly.
+ * <code>SpectreApplication</code> extends the
+ * <code>Application</code> class to provide functionality for all base elements
+ * of Spectre, and an accessible root node that is updated and rendered
+ * regularly.
+ *
  * @author Kyle Williams
  */
 public abstract class SpectreApplication extends Application {
@@ -31,6 +36,70 @@ public abstract class SpectreApplication extends Application {
     protected Node modelSubNode = new Node("Model Node");
     protected Node sceneSubNode = new Node("Scene Node");
     public static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.jme3");
+    private Camera[] playerCams = new Camera[4];
+    private int camCount = 0;
+
+    /**
+     * Returns a generated Camera
+     *
+     * @param playerNum
+     * @return
+     */
+    public Camera getPlayerCamera(int playerNum) {
+        return playerCams[playerNum];
+    }
+
+    /**
+     * Destroy's all generated Camera's
+     */
+    public void destroyAllCamera() {
+        renderManager.removeMainView("Player 1");
+        renderManager.removeMainView("Player 2");
+        renderManager.removeMainView("Player 3");
+        renderManager.removeMainView("Player 4");
+    }
+
+    /**
+     * Generates a new Camera Camera Limit is 4
+     *
+     * @return camera
+     */
+    public Camera addCamera() {
+        if (camCount > 4) {
+            return null;
+        }
+        Camera cam2 = cam.clone();
+        playerCams[camCount] = cam2;
+
+        switch (camCount) {
+            case 0:
+                playerCams[0].setViewPort(0f, 1f, 0f, 1f);
+                break;
+            case 1:
+                playerCams[0].setViewPort(0f, 0.5f, 0f, 1f);
+                playerCams[1].setViewPort(0.5f, 1f, 0f, 1f);
+                break;
+            case 2:
+                playerCams[0].setViewPort(0f, 0.5f, 0.5f, 1f);
+                playerCams[1].setViewPort(0.5f, 1f, 0.5f, 1f);
+                playerCams[2].setViewPort(0f, 0.5f, 0f, 0.5f);
+                break;
+            case 3:
+                playerCams[0].setViewPort(0f, 0.5f, 0.5f, 1f);
+                playerCams[1].setViewPort(0.5f, 1f, 0.5f, 1f);
+                playerCams[2].setViewPort(0f, 0.5f, 0f, 0.5f);
+                playerCams[3].setViewPort(0.5f, 1f, 0f, 0.5f);
+                break;
+        }
+
+        camCount++;
+        ViewPort view2 = renderManager.createMainView("Player " + camCount, cam2);
+        view2.setBackgroundColor(ColorRGBA.randomColor());
+        view2.setClearFlags(true, true, true);
+        view2.attachScene(rootNode);
+        Director.getFilterDirector().setupFilters(renderer, view2);
+        return cam2;
+    }
 
     @Override
     public void start() {
@@ -39,28 +108,36 @@ public abstract class SpectreApplication extends Application {
         if (settings == null) {
             setSettings(new AppSettings(true));
         }
-
         setSettings(settings);
         super.start();
     }
 
-    /**@return guiNode a node specifically for the graphical user interface*/
+    /**
+     * @return guiNode a node specifically for the graphical user interface
+     */
     public Node getGuiNode() {
         return guiNode;
     }
 
-    /**Should not be called to attach any other node to
-     * @return rootNode is the master node that all nodes are added to*/
+    /**
+     * Should not be called to attach any other node to
+     *
+     * @return rootNode is the master node that all nodes are added to
+     */
     public Node getRootNode() {
         return rootNode;
     }
 
-    /**@return modelNode a node which Handel all models within the world*/
+    /**
+     * @return modelNode a node which Handel all models within the world
+     */
     public Node getModelNode() {
         return modelSubNode;
     }
 
-    /**@return sceneNode a node which Handel all scenes within the world*/
+    /**
+     * @return sceneNode a node which Handel all scenes within the world
+     */
     public Node getSceneNode() {
         return sceneSubNode;
     }
@@ -80,11 +157,12 @@ public abstract class SpectreApplication extends Application {
         //enable depth test and back-face culling for performance
         renderer.applyRenderState(RenderState.DEFAULT);
 
+
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
         rootNode.attachChild(modelSubNode);
         rootNode.attachChild(sceneSubNode);
-        viewPort.attachScene(rootNode);
+        // viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
 
         if (context.getType() == Type.Display) {
@@ -95,7 +173,6 @@ public abstract class SpectreApplication extends Application {
 
         //This Is the Primary Way to set Up registered KeyBindings
         inputManager.addListener(new ActionListener() {
-
             @Override
             public void onAction(String binding, boolean value, float tpf) {
                 if (binding.equals("Exit_Vezla")) {
@@ -143,9 +220,10 @@ public abstract class SpectreApplication extends Application {
         //This SETS UP THE COLLISION FOR THE GAME
         //this.getAppStateManager().attach(new com.vza.director.PhysicsDirector());
         //SetsUp Post Filters for the whole game
+
         com.spectre.director.FilterSubDirector filterDirector = new com.spectre.director.FilterSubDirector(getAssetManager());
-        filterDirector.setupFilters(renderer, viewPort);
         com.spectre.director.Director.setFilterDirector(filterDirector);
+        // filterDirector.setupFilters(renderer, viewPort);
         //Call Game Code
         spectreApp();
 

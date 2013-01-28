@@ -20,14 +20,14 @@ import com.spectre.controller.character.SpectrePlayerController;
  */
 public abstract class SpectreAbstractController extends AbstractControl {
 
-    private SpectreAnimationController sac;
-    private SpectreEssenceController sec;
-    private SpectreInputController sic;
-    private SpectrePhysicsController sphc;
-    private SpectrePlayerController spc;
-    private String playerName;
-    private SpectreCameraController scc;
-    private Camera cam;
+    protected SpectreAnimationController sac;//set in SpectrePlayerController
+    protected SpectreEssenceController sec;
+    protected SpectreInputController sic;//set in SpectrePlayerController
+    protected SpectrePhysicsController sphc;//pre-loaded
+    protected SpectrePlayerController spc;//Set or created by player
+    protected String playerName;
+    protected SpectreCameraController scc;//set in SpectrePlayerController
+    protected Camera cam;
 
     public void startUp() {
     }

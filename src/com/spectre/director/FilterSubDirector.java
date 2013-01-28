@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.spectre.director;
 
 import com.jme3.asset.AssetManager;
@@ -23,96 +22,159 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
 
 /**
- * This class controls all Filters and postProcessing in the game
+ * This class controls all Filters and postProcessing in the game This class
+ * should be called only from com.spectre.director.Director.java
+ *
  * @author Kyle Williams
  */
 public class FilterSubDirector {
-       private FogFilter fog;
-       private BloomFilter bloom;
-       private FilterPostProcessor fpp;
-       private AssetManager assetManager;
-       private CartoonEdgeFilter cartoon;
-       private ColorOverlayFilter colorOverlay;
-       private DepthOfFieldFilter dof;
 
-       /**
-        * A Director that Handel all Filter Related tasks
-        * @param aM
-        */
-       public FilterSubDirector(AssetManager aM){assetManager = aM;}
-       /**@return CartoonEdgeFilter*/
-       public CartoonEdgeFilter getCartoonFilter(){return cartoon;}
-       /**Toggles the state of the CartoonEdgeFilter*/
-       public void toggleCartoonFilter(){cartoon.setEnabled(!cartoon.isEnabled());}
-        /**@return BloomFilter*/
-       public BloomFilter getBloomFilter(){return bloom;}
-       /**Toggles the state of the BloomFilter*/
-       public void toggleBloomFilter(){bloom.setEnabled(!bloom.isEnabled());}
-        /**@return ColorOverlayFilter*/
-       public ColorOverlayFilter getColorOverlayFilter(){return colorOverlay;}
-       /**Toggles the state of the ColorOverlayFilter*/
-       public void toggleColorOverlayFilter(){colorOverlay.setEnabled(!colorOverlay.isEnabled());}
-        /**@return FogFilter*/
-       public FogFilter getFogFilter(){return fog;}
-       /**Toggles the state of the FogFilter*/
-       public void toggleFogFilter(){fog.setEnabled(!fog.isEnabled());}
-       /**@return D.O.F.Filter*/
-       public DepthOfFieldFilter getDOFFilter(){return dof;}
-       /**Toggles the state of the FogFilter*/
-       public void toggleDOFFilter(){dof.setEnabled(!dof.isEnabled());}
+//    private FogFilter fog;
+//    private BloomFilter bloom;
+//    private FilterPostProcessor fpp;
+    private AssetManager assetManager;
+//    private CartoonEdgeFilter cartoon;
+//    private ColorOverlayFilter colorOverlay;
+//    private DepthOfFieldFilter dof;
+//
+    /**
+     * A Director that Handel all Filter Related tasks
+     *
+     * @param aM
+     */
+    public FilterSubDirector(AssetManager aM) {
+        assetManager = aM;
+    }
+//
+//    /**
+//     * @return CartoonEdgeFilter
+//     */
+//    public CartoonEdgeFilter getCartoonFilter() {
+//        return cartoon;
+//    }
+//
+//    /**
+//     * Toggles the state of the CartoonEdgeFilter
+//     */
+//    public void toggleCartoonFilter() {
+//        cartoon.setEnabled(!cartoon.isEnabled());
+//    }
+//
+//    /**
+//     * @return BloomFilter
+//     */
+//    public BloomFilter getBloomFilter() {
+//        return bloom;
+//    }
+//
+//    /**
+//     * Toggles the state of the BloomFilter
+//     */
+//    public void toggleBloomFilter() {
+//        bloom.setEnabled(!bloom.isEnabled());
+//    }
+//
+//    /**
+//     * @return ColorOverlayFilter
+//     */
+//    public ColorOverlayFilter getColorOverlayFilter() {
+//        return colorOverlay;
+//    }
+//
+//    /**
+//     * Toggles the state of the ColorOverlayFilter
+//     */
+//    public void toggleColorOverlayFilter() {
+//        colorOverlay.setEnabled(!colorOverlay.isEnabled());
+//    }
+//
+//    /**
+//     * @return FogFilter
+//     */
+//    public FogFilter getFogFilter() {
+//        return fog;
+//    }
+//
+//    /**
+//     * Toggles the state of the FogFilter
+//     */
+//    public void toggleFogFilter() {
+//        fog.setEnabled(!fog.isEnabled());
+//    }
+//
+//    /**
+//     * @return D.O.F.Filter
+//     */
+//    public DepthOfFieldFilter getDOFFilter() {
+//        return dof;
+//    }
+//
+//    /**
+//     * Toggles the state of the FogFilter
+//     */
+//    public void toggleDOFFilter() {
+//        dof.setEnabled(!dof.isEnabled());
+//    }
 
-
-       public void setupFilters(Renderer renderer,ViewPort viewPort){
-        if (renderer.getCaps().contains(Caps.GLSL100)){            
-            fpp=new FilterPostProcessor(assetManager);
-            //CARTOONFILTER 
-            cartoon = new CartoonEdgeFilter();
-            fpp.addFilter(cartoon);
-            //BLOOM
-            bloom=new BloomFilter();
-            bloom.setDownSamplingFactor(2);
-            bloom.setBlurScale(1.37f);
-            bloom.setExposurePower(3.30f);
-            bloom.setExposureCutOff(0.2f);
-            bloom.setBloomIntensity(2.45f);
-            fpp.addFilter(bloom);
-            //ColorOverlay
-            colorOverlay = new ColorOverlayFilter(ColorRGBA.White);
-            fpp.addFilter(colorOverlay);
-             //FogFilter
-            fog=new FogFilter();
-            //fog.setFogColor(new ColorRGBA(0.9f, 0.9f, 0.9f, 1.0f));
-            fog.setFogColor(ColorRGBA.Black);
-            fog.setFogDistance(155);
-            fog.setFogDensity(2.0f);
-            fpp.addFilter(fog);
-            //DepthOfField
-            dof = new DepthOfFieldFilter();
-            dof.setFocusDistance(0);
-            dof.setFocusRange(10);
-            dof.setBlurScale(1.4f);            
-            fpp.addFilter(dof);
+    public void setupFilters(Renderer renderer, ViewPort viewPort) {
+        if (renderer.getCaps().contains(Caps.GLSL100)) {
+            //if (fpp == null) {
+            //    createFilterPostProcessor();
+            //}
             //Add Filter To ViewPort
-            viewPort.addProcessor(fpp);
-            
-            this.toggleBloomFilter();
+            viewPort.addProcessor(createFilterPostProcessor());
         }
     }
 
+    private FilterPostProcessor createFilterPostProcessor() {
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        //CARTOONFILTER 
+        CartoonEdgeFilter cartoon = new CartoonEdgeFilter();
+        fpp.addFilter(cartoon);
+        //BLOOM
+//        BloomFilter bloom = new BloomFilter();
+//        bloom.setDownSamplingFactor(2);
+//        bloom.setBlurScale(1.37f);
+//        bloom.setExposurePower(3.30f);
+//        bloom.setExposureCutOff(0.2f);
+//        bloom.setBloomIntensity(2.45f);
+//        fpp.addFilter(bloom);
+//        //ColorOverlay
+//        ColorOverlayFilter colorOverlay = new ColorOverlayFilter(ColorRGBA.White);
+//        fpp.addFilter(colorOverlay);
+//        //FogFilter
+//        FogFilter fog = new FogFilter();
+//        //fog.setFogColor(new ColorRGBA(0.9f, 0.9f, 0.9f, 1.0f));
+//        fog.setFogColor(ColorRGBA.White);
+//        fog.setFogDistance(155);
+//        fog.setFogDensity(2.0f);
+//        fpp.addFilter(fog);
+//        //DepthOfField
+//        DepthOfFieldFilter dof = new DepthOfFieldFilter();
+//        dof.setFocusDistance(0);
+//        dof.setFocusRange(10);
+//        dof.setBlurScale(1.4f);
+//        fpp.addFilter(dof);
+
+        //this.toggleBloomFilter();
+        return fpp;
+    }
+
     /**
-     * CURRENTLY UNUSED
-     * Makes the spatial appear more cartoony
+     * CURRENTLY UNUSED Makes the spatial appear more cartoony
+     *
      * @param spatial
      */
-    public void makeToonish(Spatial spatial){
-        if (spatial instanceof Node){
+    public void makeToonish(Spatial spatial) {
+        if (spatial instanceof Node) {
             Node n = (Node) spatial;
-            for (Spatial child : n.getChildren())
+            for (Spatial child : n.getChildren()) {
                 makeToonish(child);
-        }else if (spatial instanceof Geometry){
+            }
+        } else if (spatial instanceof Geometry) {
             Geometry g = (Geometry) spatial;
             Material m = g.getMaterial();
-            if (m.getMaterialDef().getName().equals("Phong Lighting")){
+            if (m.getMaterialDef().getName().equals("Phong Lighting")) {
                 Texture t = assetManager.loadTexture("Textures/util/toon.png");
                 m.setTexture("ColorRamp", t);
                 m.setBoolean("UseMaterialColors", true);

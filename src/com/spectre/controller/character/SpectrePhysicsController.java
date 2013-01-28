@@ -268,7 +268,7 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         value = FastMath.abs(value);
         value = value >= .5f ? joggingSpeed : walkingSpeed;
         highestSpeed = highestSpeed < value ? value : highestSpeed;//if LR or UD at .75 then switch to that one instead 
-        System.out.println(sign);
+       
         return value * sign;
     }
 
@@ -368,7 +368,7 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         if (spatial.getControl(CharacterControl.class) != null) {
             character = spatial.getControl(CharacterControl.class);
         } else {
-            character = new CharacterControl(new CapsuleCollisionShape(diameter, height), height / 3);
+            character = new CharacterControl(new CapsuleCollisionShape(diameter, height), bb.getYExtent() );
             spatial.addControl(character);
         }
         //character.setGravity(character.getGravity() * .1f);

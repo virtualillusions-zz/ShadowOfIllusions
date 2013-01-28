@@ -24,6 +24,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.texture.Texture;
+import com.spectre.director.Director;
 
 /**
  *
@@ -46,7 +47,7 @@ public class PhysicsTestHelper {
         material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
         //material.setColor("Color", ColorRGBA.Blue);   // set color of material to blue
         
-        Box floorBox = new Box(140, 0.25f, 140);
+        Box floorBox = new Box(140,  1, 140);//0.25f, 140);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
         floorGeometry.setMaterial(material);
         floorGeometry.setLocalTranslation(0, -5, 0);
@@ -86,12 +87,12 @@ public class PhysicsTestHelper {
         rootNode.addLight(light);
 
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+        material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
 
-        Box floorBox = new Box(140, 0.25f, 140);
+        Box floorBox = new Box(140,  1, 140);//0.25f, 140);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
         floorGeometry.setMaterial(material);
-        floorGeometry.setLocalTranslation(0, -0.25f, 0);
+        floorGeometry.setLocalTranslation(0, -1f, 0);//-0.25f, 0);
 //        Plane plane = new Plane();
 //        plane.setOriginNormal(new Vector3f(0, 0.25f, 0), Vector3f.UNIT_Y);
 //        floorGeometry.addControl(new RigidBodyControl(new PlaneCollisionShape(plane), 0));
@@ -102,13 +103,14 @@ public class PhysicsTestHelper {
         //movable spheres
         for (int i = 0; i < 5; i++) {
             Sphere sphere = new Sphere(16, 16, .5f);
-            Geometry ballGeometry = new Geometry("Soccer ball", sphere);
+            Geometry ballGeometry = new Geometry("Soccer ball "+i, sphere);
             ballGeometry.setMaterial(material);
             ballGeometry.setLocalTranslation(i, 2, -3);
             //RigidBodyControl automatically uses Sphere collision shapes when attached to single geometry with sphere mesh
             ballGeometry.addControl(new RigidBodyControl(.001f));
             ballGeometry.getControl(RigidBodyControl.class).setRestitution(1);
-            rootNode.attachChild(ballGeometry);
+            //rootNode.attachChild(ballGeometry);
+            Director.getModelNode().attachChild(ballGeometry);
             space.add(ballGeometry);
         }
 
@@ -118,7 +120,8 @@ public class PhysicsTestHelper {
         boxGeometry.setMaterial(material);
         boxGeometry.setLocalTranslation(4, 1, 2);
         boxGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(box), 0));
-        rootNode.attachChild(boxGeometry);
+        //rootNode.attachChild(boxGeometry);
+        Director.getModelNode().attachChild(boxGeometry);
         space.add(boxGeometry);
 
     }
@@ -130,7 +133,7 @@ public class PhysicsTestHelper {
      */
     public static Geometry createPhysicsTestBox(AssetManager assetManager) {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+        material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
         Box box = new Box(0.25f, 0.25f, 0.25f);
         Geometry boxGeometry = new Geometry("Box", box);
         boxGeometry.setMaterial(material);
@@ -146,7 +149,7 @@ public class PhysicsTestHelper {
      */
     public static Geometry createPhysicsTestSphere(AssetManager assetManager) {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+        material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
         Sphere sphere = new Sphere(8, 8, 0.25f);
         Geometry boxGeometry = new Geometry("Sphere", sphere);
         boxGeometry.setMaterial(material);

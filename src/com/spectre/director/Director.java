@@ -5,23 +5,26 @@
 package com.spectre.director;
 
 import com.jme3.animation.Animation;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.spectre.deck.card.Card;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.spectre.controller.character.SpectrePhysicsController;
 import com.spectre.controller.character.SpectrePlayerController;
 import com.spectre.deck.SupplyDeck;
+import com.spectre.deck.card.Card;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 /**
  * TODO: whenever you load characters check for xml values basicSet, type and
@@ -79,10 +82,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
      */
     public static SpectrePlayerController getPlayer(String player) {
         if (!playerList.containsKey(player)) {
-            com.spectre.app.SpectreApplication.logger.log(
-                    java.util.logging.Level.INFO,
-                    "Player " + player + " cannot be found as part of the playerList, a new player shall be made in its place",
-                    new java.io.IOException());
+            com.spectre.app.SpectreApplication.logger.log(Level.FINE, "Player {0} cannot be found as part of the playerList, a new player shall be made in its place", player);
             addPlayer(player);
         }
         return playerList.get(player);
@@ -349,7 +349,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
         super.cleanup();
         //TODO: ADD GAMESAVE HERE 
     }
-
+ 
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -361,4 +361,6 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
         InputCapsule ic = im.getCapsule(this);
         playerList = (HashMap<String, SpectrePlayerController>) ic.readStringSavableMap("playerList", null);
     }
+    
+    
 }

@@ -31,22 +31,23 @@
  */
 package com.spectre.app;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.control.Control;
-import java.io.IOException;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
 import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.input.FlyByCamera;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Camera.FrustumIntersect;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
 import com.spectre.director.Director;
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -55,109 +56,119 @@ import java.util.LinkedList;
  * such it is a modified version of the ChaseCamera for a Physics enabled
  * environment
  *
- * @author Kyle Williams [MODIFIED FROM com.jme3.input.ChaseCamera] A camera
- * that follows a spatial and can turn around it by dragging the mouse
- * @author nehon
+ * @author Kyle Williams [MODIFIED FROM com.jme3.input.ChaseCamera by
+ * @author nehon ]
  */
-public class SpectreCameraController implements Control {
-
-    private PhysicsSpace pSpace = null;
-    private Vector3f maxPos = new Vector3f();
-    private float sensitivity = 2.5f;
+public class SpectreCameraController extends SpectreAbstractController {
 
     /**
      * Sets the spacial for the camera control, should only be used internally
      *
      * @param spatial
      */
+    @Override
     public void setSpatial(Spatial spatial) {
-        target = spatial;
-        if (spatial == null) {
-            return;
-        }
-        computePosition();
-        prevPos = new Vector3f(target.getWorldTranslation());
-        cam.setLocation(pos);
-        //NEW
-        setUp();
-    }
-
-    /**
-     * Constructs the chase camera
-     *
-     * @param cam the application camera
-     * @param target the spatial to follow
-     */
-    public SpectreCameraController(Camera cam) {
-        this.cam = cam;
-        initialUpVec = cam.getUp().clone();
-    }
-
-    private void setUp() {
+        super.setSpatial(spatial);
+        //computePosition();
+        prevPos = new Vector3f(spatial.getWorldTranslation());
+        //cam.setLocation(pos);
+        //
         setMaxVerticalRotation(FastMath.PI / 3.5f);
         setMinVerticalRotation(-FastMath.PI / 4f);
-        setMaxDistance(6.0f);
+        inputCenterCamera();
         setMinDistance(6.0f);
-        this.setMaxDistance(maxDistance * 2);
-        computePosition();
+        setMaxDistance(12.0f);
+        setDefaultDistance(getMaxDistance());//Forces the Camera to a specific distance
+        //computePosition();
     }
 
-    private void collide() {
-        //compute position
-        float hDistance = (targetDistance) * FastMath.sin((FastMath.PI / 2) - vRotation);
-        maxPos = new Vector3f(hDistance * FastMath.cos(rotation), (targetDistance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
-        maxPos = maxPos.add(target.getWorldTranslation());
-        //collide
-        if (pSpace == null) {
-            pSpace = Director.getPhysicsSpace();
-            zoomCamera(6f);
-        }//Makes sure physicsSpace is set and when it is set and zooms the camera out
-        LinkedList<PhysicsRayTestResult> testResults = (LinkedList) pSpace.rayTest(target.getWorldTranslation(), maxPos);
-        float hf = 1f;//hitFraction
-        if (testResults != null && testResults.size() > 0) {
-            hf = testResults.getFirst().getHitFraction();
+    @Override
+    public void startUp() {
+        super.startUp();
+        if (cam == null) {
+            setCamera(Director.getApp().addCamera());
         }
-        //targetDistance = ((float)((int)(hitFraction*100)))/100 * targetDistance;
-        targetDistance = hf * targetDistance;
+    }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        cam = null;
     }
 
     /**
-     * sets the current zoom distance for the chase camera
-     *
-     * @param new distance
+     * Determines camera Location and Rotation
      */
-    public void alterDistance(float alterBy) {
-        this.zoomCamera(alterBy);
-    }
+    private void computePosition() {
+        zoomCamera(getMaxDistance());//Forces the Camera to a specific distance
 
-    protected void computePosition() {
-        alterDistance(getMaxDistance());//Forces the Camera to a specific distance
+        if (lockOn == true) {
+            float[] angles = new float[3];
+            Quaternion camRotation = getCamera().getRotation();
+            camRotation.toAngles(angles);
+            float t = FastMath.HALF_PI - (angles[1] + FastMath.PI);
+            setDefaultHorizontalRotation(t);
+            float min = getMinVerticalRotation();
+            float max = getMaxVerticalRotation();
+            t = FastMath.clamp(angles[0], min, max);
+            setDefaultVerticalRotation(t);
+        }
 
         float hDistance = (distance) * FastMath.sin((FastMath.PI / 2) - vRotation);
         pos.set(hDistance * FastMath.cos(rotation), (distance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
-        pos.addLocal(target.getWorldTranslation());
+        pos.addLocal(spatial.getWorldTranslation());
 
         collide();
     }
 
-    public void setCameraSensitivity(float sensitivity) {
-        this.sensitivity = sensitivity;
+    /**
+     * Collisions calculations to prevent character from being obscured
+     */
+    private void collide() {
+        //compute position
+        float hDistance = (targetDistance) * FastMath.sin((FastMath.PI / 2) - vRotation);
+        maxPos = new Vector3f(hDistance * FastMath.cos(rotation), (targetDistance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
+        maxPos = maxPos.add(spatial.getWorldTranslation());
+        //collide
+        if (pSpace == null) {
+            pSpace = Director.getPhysicsSpace();
+            zoomCamera(getMaxDistance());
+        }
+        //Makes sure physicsSpace is set and when it is set and zooms the camera out
+        LinkedList<PhysicsRayTestResult> testResults = (LinkedList) pSpace.rayTest(spatial.getWorldTranslation(), maxPos);
+        float hf = 1f;//hitFraction
+        if (testResults != null && testResults.size() > 0) {
+            hf = testResults.getFirst().getHitFraction();
+        }
+        targetDistance = hf * targetDistance;//((float)((int)(hf*100)))/100 * targetDistance;
     }
 
-    //rotate the camera around the target on the horizontal plane
-    public void inputRotateCamera(float value) {
+    /**
+     * rotate the camera around the target on the horizontal plane
+     *
+     * @param value DO NOT AUGMENT VALUE WITH TPF
+     */
+    public void inputHRotateCamera(float value) {
+        if (lockOn == true) {
+            return;
+        }
         value = sensitivity * value;
         if (!canRotate || !enabled) {
             return;
         }
         rotating = true;
         targetRotation += value * rotationSpeed;
-
-
     }
-    //rotate the camera around the target on the vertical plane
 
+    /**
+     * rotate the camera around the target on the vertical plane
+     *
+     * @param value DO NOT AUGMENT VALUE WITH TPF
+     */
     public void inputVRotateCamera(float value) {
+        if (lockOn == true) {
+            return;
+        }
         value = sensitivity * value;
         if (!canRotate || !enabled) {
             return;
@@ -181,7 +192,16 @@ public class SpectreCameraController implements Control {
         }
     }
 
+    /**
+     * @deprecated This method will not work due to proper collision
+     * calculations. Regardless Method is un-needed
+     * @param value
+     * @param zoomIn
+     */
     public void inputZoomCamera(float value, boolean zoomIn) {
+        if (lockOn == true) {
+            return;
+        }
         value = zoomIn == true ? -value : +value;//zoom in means value should be decremental
         zoomCamera(value);
         if (zoomin == true) {
@@ -190,72 +210,109 @@ public class SpectreCameraController implements Control {
         this.zoomin = zoomIn;
     }
 
+    /**
+     * Centers the Camera squarely behind target spatial
+     */
     public void inputCenterCamera() {
-        //TODO: FIGURE OUT HOW THE HELL TO DO THIS
+        lockOn = false;
+        float[] angles = new float[3];
+        spatial.getWorldRotation().toAngles(angles);
+        float t = FastMath.HALF_PI - (angles[1] + FastMath.PI);
+        setDefaultHorizontalRotation(t);//places camera directly behind character
+        t = FastMath.QUARTER_PI / 4;
+        setDefaultVerticalRotation(t);//random vertical position of camera values are irrelevant
     }
 
-    public Camera getCamera() {
-        return cam;
+    /**
+     * Locks onto closest Target in view of camera or if none closest target to
+     * player
+     */
+    public void inputToggleLockOnTarget() {
+        if (lockOn == true) {
+            lockOn = false;
+            lockOnTarget = null;
+        } else {
+            getLookAtTarget(true);
+            if (lockOnTarget != null) {
+                lockOn = true;
+            }
+        }
     }
-//////////////[Modified Chase Camera]
-    protected Spatial target = null;
-    protected float minVerticalRotation = 0.00f;
-    protected float maxVerticalRotation = FastMath.PI / 2;
-    protected float minDistance = 1.0f;
-    protected float maxDistance = 40.0f;
-    protected float distance = 20;
-    protected float zoomSpeed = 2f;
-    protected float rotationSpeed = 1.0f;
-    protected float rotation = 0;
-    protected float trailingRotationInertia = 0.05f;
-    protected float zoomSensitivity = 5f;
-    protected float rotationSensitivity = 5f;
-    protected float chasingSensitivity = 5f;
-    protected float trailingSensitivity = 0.5f;
-    protected float vRotation = FastMath.PI / 6;
-    protected boolean smoothMotion = false;
-    protected boolean trailingEnabled = true;
-    protected float rotationLerpFactor = 0;
-    protected float trailingLerpFactor = 0;
-    protected boolean rotating = false;
-    protected boolean vRotating = false;
-    protected float targetRotation = rotation;
-    protected Vector3f initialUpVec;
-    protected float targetVRotation = vRotation;
-    protected float vRotationLerpFactor = 0;
-    protected float targetDistance = distance;
-    protected float distanceLerpFactor = 0;
-    protected boolean zooming = false;
-    protected boolean trailing = false;
-    protected boolean chasing = false;
-    protected boolean veryCloseRotation = true;
-    protected boolean canRotate = true;
-    protected float offsetDistance = 0.002f;
-    protected Vector3f prevPos;
-    protected boolean targetMoves = false;
-    protected boolean enabled = true;
-    protected Camera cam = null;
-    protected final Vector3f targetDir = new Vector3f();
-    protected float previousTargetRotation;
-    protected final Vector3f pos = new Vector3f();
-    protected Vector3f targetLocation = new Vector3f(0, 0, 0);
-    protected boolean dragToRotate = false;
-    protected Vector3f lookAtOffset = new Vector3f(0, 0, 0);
-    protected boolean leftClickRotate = true;
-    protected boolean rightClickRotate = true;
-    protected Vector3f temp = new Vector3f(0, 0, 0);
-    protected boolean invertYaxis = false;
-    protected boolean invertXaxis = false;
-    protected final static String ChaseCamDown = "ChaseCamDown";
-    protected final static String ChaseCamUp = "ChaseCamUp";
-    protected final static String ChaseCamZoomIn = "ChaseCamZoomIn";
-    protected final static String ChaseCamZoomOut = "ChaseCamZoomOut";
-    protected final static String ChaseCamMoveLeft = "ChaseCamMoveLeft";
-    protected final static String ChaseCamMoveRight = "ChaseCamMoveRight";
-    protected final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
-    protected boolean zoomin;
 
-    //move the camera toward or away the target
+    /**
+     * Gets Next or previous Target
+     *
+     * @param next
+     */
+    public void inputToggleLockOnTarget(boolean next) {
+        if (lockOnTarget == null) {
+            getLookAtTarget(false);
+        } else {
+            int i = getRootNode().getChildIndex(lockOnTarget);
+            i += next == true ? 1 : -1;
+            i = modulo(i, getRootNode().getChildren().size());
+            if (getRootNode().getChild(i).equals(spatial)) {
+                i += next == true ? 1 : -1;
+                i = modulo(i, getRootNode().getChildren().size());
+            }
+            lockOnTarget = getRootNode().getChild(i);
+        }
+        if (lockOnTarget != null) {
+            lockOn = true;
+        }
+
+    }
+
+    /**
+     * Locks onto a target either by field of view or distance from target
+     *
+     * @param targetInView
+     */
+    private void getLookAtTarget(boolean targetInView) {
+        float lookAtDistance = -1;
+        for (Spatial spat : getRootNode().getChildren()) {
+            if (!spat.equals(spatial)) {
+                float d = spatial.getLocalTranslation().distance(spat.getLocalTranslation());
+                int ordinal = getCamera().contains(spat.getWorldBound()).ordinal();
+                if (targetInView == false || ordinal != FrustumIntersect.Outside.ordinal()) {
+                    if (lookAtDistance == -1 || d < lookAtDistance) {
+                        lockOnTarget = spat;
+                        lookAtDistance = d;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns Node which contains all playable characters
+     *
+     * @return
+     */
+    private Node getRootNode() {
+        if (rootNode == null) {
+            rootNode = spatial.getParent();
+        }
+        return rootNode;
+    }
+
+    /**
+     * Modulo Fix for negative numbers
+     *
+     * @param dividend the number that is being divided by. Appears on Left
+     * @param divisor the number the dividend is being divided by. Appears on
+     * Right
+     * @return
+     */
+    private int modulo(int dividend, int divisor) {
+        return (dividend % divisor + divisor) % divisor;
+    }
+
+    /**
+     * sets the current zoom distance for the chase camera
+     *
+     * @param new distance
+     */
     protected void zoomCamera(float value) {
         if (!enabled) {
             return;
@@ -277,11 +334,16 @@ public class SpectreCameraController implements Control {
     }
 
     /**
-     * Updates the camera, should only be called internally
+     * update the camera control
+     *
+     * @param tpf
      */
-    protected void updateCamera(float tpf) {
+    @Override
+    public void update(float tpf) {
         if (enabled) {
-            targetLocation.set(target.getWorldTranslation()).addLocal(lookAtOffset);
+
+            targetLocation.set(spatial.getWorldTranslation()).addLocal(lookAtOffset);
+
             if (smoothMotion) {
 
                 //computation of target direction
@@ -409,6 +471,11 @@ public class SpectreCameraController implements Control {
                 computePosition();
                 cam.setLocation(pos.addLocal(lookAtOffset));
             }
+
+
+            Spatial s = lockOn == true ? lockOnTarget : spatial;
+            targetLocation.set(s.getWorldTranslation()).addLocal(lookAtOffset);
+
             //keeping track on the previous position of the target
             prevPos.set(targetLocation);
 
@@ -419,12 +486,12 @@ public class SpectreCameraController implements Control {
     }
 
     /**
-     * Return the enabled/disabled state of the camera
+     * Set Camera Sensitivity to input
      *
-     * @return true if the camera is enabled
+     * @param sensitivity
      */
-    public boolean isEnabled() {
-        return enabled;
+    public void setCameraSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
     }
 
     /**
@@ -432,8 +499,9 @@ public class SpectreCameraController implements Control {
      *
      * @param enabled true to enable
      */
+    @Override
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        super.setEnabled(enabled);
         canRotate = enabled;
     }
 
@@ -485,30 +553,13 @@ public class SpectreCameraController implements Control {
      * @param spatial
      * @return
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
-        SpectreCameraController cc = new SpectreCameraController(cam);
+        SpectreCameraController cc = new SpectreCameraController();
+        cc.setCamera(getCamera());
         cc.setMaxDistance(getMaxDistance());
         cc.setMinDistance(getMinDistance());
         return cc;
-    }
-
-    /**
-     * update the camera control, should only be used internally
-     *
-     * @param tpf
-     */
-    public void update(float tpf) {
-        updateCamera(tpf);
-    }
-
-    /**
-     * renders the camera control, should only be used internally
-     *
-     * @param rm
-     * @param vp
-     */
-    public void render(RenderManager rm, ViewPort vp) {
-        //nothing to render
     }
 
     /**
@@ -810,13 +861,74 @@ public class SpectreCameraController implements Control {
         return initialUpVec;
     }
 
+    @Override
+    public Camera getCamera() {
+        return cam;
+    }
+
+    public void setCamera(Camera camera) {
+        cam = camera;
+        initialUpVec = cam.getUp().clone();
+    }
+    private float minVerticalRotation = 0.00f;
+    private float maxVerticalRotation = FastMath.PI / 2;
+    private float minDistance = 1.0f;
+    private float maxDistance = 40.0f;
+    private float distance = 20;
+    private float zoomSpeed = 2f;
+    private float rotationSpeed = 1.0f;
+    private float rotation = 0;
+    private float trailingRotationInertia = 0.05f;
+    private float zoomSensitivity = 5f;
+    private float rotationSensitivity = 5f;
+    private float chasingSensitivity = 5f;
+    private float trailingSensitivity = 0.5f;
+    private float vRotation = FastMath.PI / 6;
+    private boolean smoothMotion = true;
+    private boolean trailingEnabled = true;
+    private float rotationLerpFactor = 0;
+    private float trailingLerpFactor = 0;
+    private boolean rotating = false;
+    private boolean vRotating = false;
+    private float targetRotation = rotation;
+    private Vector3f initialUpVec;
+    private float targetVRotation = vRotation;
+    private float vRotationLerpFactor = 0;
+    private float targetDistance = distance;
+    private float distanceLerpFactor = 0;
+    private boolean zooming = false;
+    private boolean trailing = false;
+    private boolean chasing = false;
+    private boolean veryCloseRotation = true;
+    private boolean canRotate = true;
+    private float offsetDistance = 0.002f;
+    private Vector3f prevPos;
+    private boolean targetMoves = false;
+    private Camera cam = null;
+    private final Vector3f targetDir = new Vector3f();
+    private float previousTargetRotation;
+    private final Vector3f pos = new Vector3f();
+    private Vector3f targetLocation = new Vector3f(0, 0, 0);
+    private boolean dragToRotate = false;
+    private Vector3f lookAtOffset = new Vector3f(0, 0, 0);
+    private Vector3f temp = new Vector3f(0, 0, 0);
+    private boolean zoomin;
+    private PhysicsSpace pSpace = null;
+    private Vector3f maxPos = new Vector3f();
+    private float sensitivity = 0.025f;
+    private Node rootNode;
+    private Spatial lockOnTarget;
+    private boolean lockOn;
+
     /**
      * Write the camera
      *
      * @param ex the exporter
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(maxDistance, "maxDistance", 40);
         capsule.write(minDistance, "minDistance", 1);
@@ -828,7 +940,9 @@ public class SpectreCameraController implements Control {
      * @param im
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
+        super.read(im);
         InputCapsule ic = im.getCapsule(this);
         maxDistance = ic.readFloat("maxDistance", 40);
         minDistance = ic.readFloat("minDistance", 1);

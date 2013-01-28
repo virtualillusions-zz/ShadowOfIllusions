@@ -13,6 +13,7 @@ import com.jme3.input.InputManager;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.spectre.app.SpectreAbstractController;
+import com.spectre.app.SpectreCameraController;
 import com.spectre.controller.character.gui.CardGUIController;
 import com.spectre.director.Director;
 import com.spectre.util.Buttons;
@@ -24,12 +25,9 @@ import java.io.IOException;
  * @author Kyle Williams
  */
 public class SpectrePlayerController extends SpectreAbstractController implements Savable {
-    //The name of the player
 
-    private String playerName = null;
-    private SpectreInputController sic;
-    private SpectrePhysicsController sphc;
-    private int playerhighScore = 0;//This is to keep track of players highest total Score
+    /*This is to keep track of players highest total Score*/
+    private int playerhighScore = 0;
 
     /**
      * The Highest Score the player has
@@ -71,7 +69,6 @@ public class SpectrePlayerController extends SpectreAbstractController implement
      */
     public SpectrePlayerController addIntoPlay() {
         Director.getModelNode().attachChild(getModel());
-        //Director.getPhysicsSpace().add(spc);
 
         enableInput(true);
 
@@ -85,11 +82,10 @@ public class SpectrePlayerController extends SpectreAbstractController implement
      */
     public void removeFromPlay() {
         Director.getModelNode().detachChild(getModel());
-        //Director.getPhysicsSpace().remove(spc);
+
         enableInput(false);
 
         setSpectreControllers(false);
-
     }
 
     /**
@@ -127,11 +123,9 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         }
 
         spat.addControl(this);
+        spat.addControl(getCameraCont());//gamestate
+        spat.addControl(getAnimCont());//character
         spat.addControl(getInputCont());
-        //TODO:Either Create a class whose primary function is to lend out camera's or add to this parameter to include a new camera
-        //cam = new SpectreCameraController(Director.getApp().getCamera(), spatial);
-        //spat.getControl(InputController.class).set(name, inputControls, getCamera().getCamera());
-
         return this;
     }
 
@@ -142,7 +136,9 @@ public class SpectrePlayerController extends SpectreAbstractController implement
      */
     public void removeModel() {
         spatial.removeControl(getInputCont());
-        spatial.setUserData("playerName", "");
+        spatial.removeControl(getAnimCont());
+        spatial.removeControl(getCameraCont());
+        spatial.setUserData("playerName", null);
         spatial.removeControl(this);
         sphc = null;
     }
@@ -179,8 +175,16 @@ public class SpectrePlayerController extends SpectreAbstractController implement
      *
      * @return CardGUI
      */
-    public com.spectre.controller.character.gui.CardGUIController getCardGUI() {
+    public CardGUIController getCardGUI() {
         return spatial.getControl(CardGUIController.class);
+    }
+
+    @Override
+    public SpectreAnimationController getAnimCont() {
+        if (sac == null) {
+            sac = new SpectreAnimationController();
+        }
+        return sac;
     }
 
     @Override
@@ -189,6 +193,14 @@ public class SpectrePlayerController extends SpectreAbstractController implement
             sic = new SpectreInputController();
         }
         return sic;
+    }
+
+    @Override
+    public SpectreCameraController getCameraCont() {
+        if (scc == null) {
+            scc = new SpectreCameraController();
+        }
+        return scc;
     }
 
     @Override

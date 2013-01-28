@@ -14,8 +14,5 @@
             </source-roots>
             <test-roots/>
         </data>
-        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
-            <word>JAXBHashMap</word>
-        </spellchecker-wordlist>
     </configuration>
 </project>

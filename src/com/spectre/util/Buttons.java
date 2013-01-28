@@ -5,11 +5,9 @@
 package com.spectre.util;
 
 import com.jme3.input.InputManager;
-import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.JoyAxisTrigger;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -21,32 +19,106 @@ import com.jme3.input.controls.MouseButtonTrigger;
 public class Buttons {
 
     public enum controlInputs {
-        //Controls                 Caster Mode           Action Mode
-
-        Action1,//            Perform/Remap Action 1        Jump
-        Action2,//            Perform/Remap Action 2     Roll/Slide
-        Action3,//            Perform/Remap Action 3        Dash
-        Action4,//            Perform/Remap Action 4     Use Character Weapon
-        Action5,//            Change To Prev Target       Dash/Roll Left
-        Action6,//            Change To Next Target       Dash/Roll Right
-        Action7,//            GatherFocus(While Still)   Perform Special Manuever
-        Action8,//                          RESET CAMERA VIEW
-        Back,//                       Reshuffle Deck at start of battle
-        Start,//                                    Menu
-        LeftThumbstickDown,//                 Move Character
-        LeftThumbstickUp,//                         ^
-        LeftThumbstickRight,//                      ^
-        LeftThumbstickLeft,//                       ^
-        RightThumbstickDown,//                Move Camera
-        RightThumbstickUp,//                        ^
-        RightThumbstickRight,//                     ^
-        RightThumbstickLeft,//                      ^
-        LeftTrigger,//                      LOCK ON HOLD:Zoom View
-        RightTrigger,//      HOLD: Enter Action Mode      Release:Enter Caster Mode
-        DPadRight,//                    Show Explanation of Mapped Action 2
-        DPadLeft,//                     Show Explanation of Mapped Action 4
-        DPadUp,//                       Show Explanation of Mapped Action 3
-        DPadDown;//                     Show Explanation of Mapped Action 1
+        /**
+         * Caster Mode:Perform/Remap Action 1 <br><br> Action Mode:Jump
+         */
+        Action1,
+        /**
+         * Caster Mode:Perform/Remap Action 2 <br><br> Action Mode:Roll/Slide
+         */
+        Action2,
+        /**
+         * Caster Mode:Perform/Remap Action 3 <br><br> Action Mode:Dash
+         */
+        Action3,
+        /**
+         * Caster Mode:Perform/Remap Action 4 <br><br> Action Mode:Use Character
+         * Weapon
+         */
+        Action4,
+        /**
+         * Caster Mode:Change To Previous Target <br><br> Action Mode:Dash/Roll
+         * Left
+         */
+        Action5,
+        /**
+         * Caster Mode:Change To Next Target <br><br> Action Mode:Dash/Roll
+         * Right
+         */
+        Action6,
+        /**
+         * TAP: LOCK ON/OFF <br><br> HOLD:Zoom View
+         */
+        Action7,
+        /**
+         * RESET CAMERA VIEW
+         */
+        Action8,
+        /**
+         * Reshuffle Deck at start of battle
+         */
+        Back,
+        /**
+         * Menu
+         */
+        Start,                                
+        /**
+         * Move Character Towards Camera
+         */
+        LeftThumbstickDown,
+        /**
+         * Move Character Away From Camera
+         */
+        LeftThumbstickUp,
+        /**
+         * Move Character Right Of Camera
+         */
+        LeftThumbstickRight,
+        /**
+         * Move Character Left Of Camera
+         */
+        LeftThumbstickLeft,
+        /**
+         * Move Camera Down
+         */
+        RightThumbstickDown,
+        /**
+         * Move Camera Up
+         */
+        RightThumbstickUp,
+        /**
+         * Move Camera Right
+         */
+        RightThumbstickRight,
+        /**
+         * Move Camera Left
+         */
+        RightThumbstickLeft,
+        /**
+         * Caster Mode:GatherFocus(While Still) <br><br> Action Mode:Perform
+         * Special Maneuver
+         */
+        LeftTrigger,
+        /**
+         * HOLD: Enter Action Mode <br><br> Release:Enter Caster Mode
+         */
+        RightTrigger,
+        /**
+         * Show Explanation of Mapped Action 2
+         */
+        DPadRight,
+        /**
+         * Show Explanation of Mapped Action 4
+         */
+        DPadLeft,
+        /**
+         * Show Explanation of Mapped Action 3
+         */
+        DPadUp,
+        /**
+         * Show Explanation of Mapped Action 1
+         */
+        DPadDown;
     }
 
     //SIDE NOTE USE THIS AS PART OF SETUP CALL IN GAMESTATE
@@ -62,27 +134,28 @@ public class Buttons {
         manager.addMapping(playerName + ":" + controlInputs.Action5, new KeyTrigger(KeyInput.KEY_Q));
         manager.addMapping(playerName + ":" + controlInputs.Action6, new KeyTrigger(KeyInput.KEY_E));
         manager.addMapping(playerName + ":" + controlInputs.Action7, new KeyTrigger(KeyInput.KEY_F));
-        manager.addMapping(playerName + ":" + controlInputs.Action8, new KeyTrigger(KeyInput.KEY_R));
+        manager.addMapping(playerName + ":" + controlInputs.Action8, new KeyTrigger(KeyInput.KEY_R), new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
+
         manager.addMapping(playerName + ":" + controlInputs.Back, new KeyTrigger(KeyInput.KEY_BACK));
         manager.addMapping(playerName + ":" + controlInputs.Start, new KeyTrigger(KeyInput.KEY_RETURN));
 
-        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickDown, new KeyTrigger(KeyInput.KEY_S));
         manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickUp, new KeyTrigger(KeyInput.KEY_W));
+        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickDown, new KeyTrigger(KeyInput.KEY_S));
         manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickLeft, new KeyTrigger(KeyInput.KEY_A));
         manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickRight, new KeyTrigger(KeyInput.KEY_D));
 
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickDown, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickUp, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickLeft, new MouseAxisTrigger(MouseInput.AXIS_X, false));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickRight, new MouseAxisTrigger(MouseInput.AXIS_X, true));
+        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickDown, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickUp, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickLeft, new MouseAxisTrigger(MouseInput.AXIS_X, true));
+        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickRight, new MouseAxisTrigger(MouseInput.AXIS_X, false));
 
         manager.addMapping(playerName + ":" + controlInputs.LeftTrigger, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         manager.addMapping(playerName + ":" + controlInputs.RightTrigger, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
-        manager.addMapping(playerName + ":" + controlInputs.DPadRight, new KeyTrigger(KeyInput.KEY_7));
-        manager.addMapping(playerName + ":" + controlInputs.DPadLeft, new KeyTrigger(KeyInput.KEY_8));
-        manager.addMapping(playerName + ":" + controlInputs.DPadUp, new KeyTrigger(KeyInput.KEY_9));
-        manager.addMapping(playerName + ":" + controlInputs.DPadDown, new KeyTrigger(KeyInput.KEY_0));
+        manager.addMapping(playerName + ":" + controlInputs.DPadRight, new KeyTrigger(KeyInput.KEY_RIGHT));
+        manager.addMapping(playerName + ":" + controlInputs.DPadLeft, new KeyTrigger(KeyInput.KEY_LEFT));
+        manager.addMapping(playerName + ":" + controlInputs.DPadUp, new KeyTrigger(KeyInput.KEY_UP));
+        manager.addMapping(playerName + ":" + controlInputs.DPadDown, new KeyTrigger(KeyInput.KEY_DOWN));
     }
     // </editor-fold> 
 
@@ -138,13 +211,13 @@ public class Buttons {
         js.getButton(Xbox360.Back.getID()).assignButton(playerName + ":" + controlInputs.Back);
         js.getButton(Xbox360.Start.getID()).assignButton(playerName + ":" + controlInputs.Start);
 
-        js.getAxis(Xbox360.LeftThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftThumbstickUp, playerName + ":" + controlInputs.LeftThumbstickDown);
+        js.getAxis(Xbox360.LeftThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftThumbstickDown, playerName + ":" + controlInputs.LeftThumbstickUp);
         js.getAxis(Xbox360.LeftThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftThumbstickRight, playerName + ":" + controlInputs.LeftThumbstickLeft);
         js.getAxis(Xbox360.RightThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.RightThumbstickDown, playerName + ":" + controlInputs.RightThumbstickUp);
-        js.getAxis(Xbox360.RightThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + controlInputs.RightThumbstickLeft, playerName + ":" + controlInputs.RightThumbstickRight);
+        js.getAxis(Xbox360.RightThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + controlInputs.RightThumbstickRight, playerName + ":" + controlInputs.RightThumbstickLeft);
         js.getAxis(Xbox360.LeftRightTriggerAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftTrigger, playerName + ":" + controlInputs.RightTrigger);
         js.getAxis(Xbox360.DPadRightLeftAxis.getID()).assignAxis(playerName + ":" + controlInputs.DPadRight, playerName + ":" + controlInputs.DPadLeft);
-        js.getAxis(Xbox360.DPadUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.DPadUp, playerName + ":" + controlInputs.DPadDown);
+        js.getAxis(Xbox360.DPadUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.DPadDown, playerName + ":" + controlInputs.DPadUp);
 
         manager.setAxisDeadZone(0.2f);
     }
