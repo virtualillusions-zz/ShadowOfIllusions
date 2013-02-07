@@ -27,8 +27,6 @@ import com.spectre.controller.scene.SceneController;
 import com.spectre.director.Director;
 import com.spectre.util.Buttons;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import test.physics.PhysicsTestHelper;
 
 /**
@@ -49,7 +47,7 @@ public class testMain extends SpectreApplication {
         settings.setUseJoysticks(true);
         app.setSettings(settings);
         app.start();
-        Logger.getLogger("").setLevel(Level.WARNING);
+        //Logger.getLogger("").setLevel(Level.WARNING);
     }
 
     @Override
@@ -83,13 +81,12 @@ public class testMain extends SpectreApplication {
                 //Setting the direction to Spatial to camera, this means the camera will copy the movements of the Node
                 camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
                 //attaching the camNode to the teaNode
-                ((Node)Director.getPlayer("KYLO").getSpatial()).attachChild(camNode);
+                ((Node) Director.getPlayer("KYLO").getSpatial()).attachChild(camNode);
                 //setting the local translation of the cam node to move it away from the teanNode a bit
                 camNode.setLocalTranslation(new Vector3f(0, 8, -60));
                 //setting the camNode to look at the teaNode
                 camNode.lookAt(Director.getPlayer("KYLO").getSpatial().getLocalTranslation(), Vector3f.UNIT_Y);
 
-Director.getPhysicsSpace().enableDebug(assetManager);
             }
         });
     }

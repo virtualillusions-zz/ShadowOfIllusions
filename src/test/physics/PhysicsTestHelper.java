@@ -185,7 +185,7 @@ public class PhysicsTestHelper {
                 Sphere bullet = new Sphere(32, 32, 0.4f, true, false);
                 bullet.setTextureMode(TextureMode.Projected);
                 Material mat2 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-                TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
+                TextureKey key2 = new TextureKey("testData/Monkey.jpg");
                 key2.setGenerateMips(true);
                 Texture tex2 = app.getAssetManager().loadTexture(key2);
                 mat2.setTexture("ColorMap", tex2);
@@ -205,5 +205,56 @@ public class PhysicsTestHelper {
         };
         app.getInputManager().addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         app.getInputManager().addListener(actionListener, "shoot");
+    }
+    
+    
+    
+    
+    /**
+     * creates a simple physics test world with a floor, an obstacle and some test boxes
+     * @param rootNode
+     * @param assetManager
+     * @param space
+     */
+    public static void createPhysicsTestWorldDefault(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
+        AmbientLight light = new AmbientLight();
+        light.setColor(ColorRGBA.LightGray);
+        rootNode.addLight(light);
+
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
+
+        Box floorBox = new Box(140, 0.25f, 140);
+        Geometry floorGeometry = new Geometry("Floor", floorBox);
+        floorGeometry.setMaterial(material);
+        floorGeometry.setLocalTranslation(0, -5, 0);
+//        Plane plane = new Plane();
+//        plane.setOriginNormal(new Vector3f(0, 0.25f, 0), Vector3f.UNIT_Y);
+//        floorGeometry.addControl(new RigidBodyControl(new PlaneCollisionShape(plane), 0));
+        floorGeometry.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(floorGeometry);
+        space.add(floorGeometry);
+
+        //movable boxes
+        for (int i = 0; i < 12; i++) {
+            Box box = new Box(0.25f, 0.25f, 0.25f);
+            Geometry boxGeometry = new Geometry("Box", box);
+            boxGeometry.setMaterial(material);
+            boxGeometry.setLocalTranslation(i, 5, -3);
+            //RigidBodyControl automatically uses box collision shapes when attached to single geometry with box mesh
+            boxGeometry.addControl(new RigidBodyControl(2));
+            rootNode.attachChild(boxGeometry);
+            space.add(boxGeometry);
+        }
+
+        //immovable sphere with mesh collision shape
+        Sphere sphere = new Sphere(8, 8, 1);
+        Geometry sphereGeometry = new Geometry("Sphere", sphere);
+        sphereGeometry.setMaterial(material);
+        sphereGeometry.setLocalTranslation(4, -4, 2);
+        sphereGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(sphere), 0));
+        rootNode.attachChild(sphereGeometry);
+        space.add(sphereGeometry);
+
     }
 }

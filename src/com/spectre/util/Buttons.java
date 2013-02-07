@@ -11,6 +11,8 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.spectre.app.SpectreApplication;
+import com.spectre.director.Director;
 
 /**
  *
@@ -19,6 +21,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 public class Buttons {
 
     public enum controlInputs {
+
         /**
          * Caster Mode:Perform/Remap Action 1 <br><br> Action Mode:Jump
          */
@@ -32,22 +35,20 @@ public class Buttons {
          */
         Action3,
         /**
-         * Caster Mode:Perform/Remap Action 4 <br><br> Action Mode:Use Character
-         * Weapon
+         * Caster Mode:Perform/Remap Action 4 <br><br> Action Mode:Character
+         * Auxiliary <br> Characters Secondary Attack ie shield, sword, Power-up
          */
         Action4,
         /**
-         * Caster Mode:Change To Previous Target <br><br> Action Mode:Dash/Roll
-         * Left
+         * Caster Mode:Change To Previous Target
          */
         Action5,
         /**
-         * Caster Mode:Change To Next Target <br><br> Action Mode:Dash/Roll
-         * Right
+         * Caster Mode:Change To Next Target
          */
         Action6,
         /**
-         * TAP: LOCK ON/OFF <br><br> HOLD:Zoom View
+         * TAP: LOCK ON/OFF
          */
         Action7,
         /**
@@ -55,13 +56,38 @@ public class Buttons {
          */
         Action8,
         /**
-         * Reshuffle Deck at start of battle
+         * Caster Mode:GatherFocus(While Still) <br><br> Action Mode:Perform
+         * Special Maneuver
          */
-        Back,
+        LeftTrigger,
+        /**
+         * HOLD: Enter Action Mode <br><br> Release:Enter Caster Mode
+         */
+        RightTrigger,
+        /**
+         * Show Explanation of Mapped Action 1
+         */
+        DPadDown,
+        /**
+         * Show Explanation of Mapped Action 2
+         */
+        DPadRight,
+        /**
+         * Show Explanation of Mapped Action 3
+         */
+        DPadUp,
+        /**
+         * Show Explanation of Mapped Action 4
+         */
+        DPadLeft,
         /**
          * Menu
          */
-        Start,                                
+        Start,
+        /**
+         * Reshuffle Deck at start of battle
+         */
+        Back,
         /**
          * Move Character Towards Camera
          */
@@ -93,32 +119,7 @@ public class Buttons {
         /**
          * Move Camera Left
          */
-        RightThumbstickLeft,
-        /**
-         * Caster Mode:GatherFocus(While Still) <br><br> Action Mode:Perform
-         * Special Maneuver
-         */
-        LeftTrigger,
-        /**
-         * HOLD: Enter Action Mode <br><br> Release:Enter Caster Mode
-         */
-        RightTrigger,
-        /**
-         * Show Explanation of Mapped Action 2
-         */
-        DPadRight,
-        /**
-         * Show Explanation of Mapped Action 4
-         */
-        DPadLeft,
-        /**
-         * Show Explanation of Mapped Action 3
-         */
-        DPadUp,
-        /**
-         * Show Explanation of Mapped Action 1
-         */
-        DPadDown;
+        RightThumbstickLeft,;
     }
 
     //SIDE NOTE USE THIS AS PART OF SETUP CALL IN GAMESTATE
@@ -195,7 +196,8 @@ public class Buttons {
         if (playerNum <= 0) {
             return;
         } else if (manager.getJoysticks().length <= 0) {
-            return;//@TODO remember to add some sort of exception or logger here
+            SpectreApplication.logger.severe("No Input Device Found");
+            return;
         }
 
         Joystick js = manager.getJoysticks()[playerNum - 1];
@@ -223,27 +225,17 @@ public class Buttons {
     }
     // </editor-fold>
 
-    public static String[] getAction(String playerName) {
-        return new String[]{playerName + ":Action1", playerName + ":Action2", playerName + ":Action3", playerName + ":Action4", playerName + ":Action5",
-                    playerName + ":Action6", playerName + ":Action7", playerName + ":Action8", playerName + ":Back", playerName + ":Start"};
-    }
-
-    public static String[] getAnalog(String playerName) {
-        return new String[]{playerName + ":LeftThumbstickDown", playerName + ":LeftThumbstickUp",
-                    playerName + ":LeftThumbstickRight", playerName + ":LeftThumbstickLeft",
-                    playerName + ":RightThumbstickDown", playerName + ":RightThumbstickUp",
-                    playerName + ":RightThumbstickRight", playerName + ":RightThumbstickLeft",
-                    playerName + ":LeftTrigger", playerName + ":RightTrigger",
-                    playerName + ":DPadRight", playerName + ":DPadLeft",
-                    playerName + ":DPadUp", playerName + ":DPadDown"};
-    }
-
-    public static String[] getBoth(String playerName) {
-        String[] ac = getAction(playerName);
-        String[] an = getAnalog(playerName);
-        String[] both = new String[ac.length + an.length];
-        System.arraycopy(ac, 0, both, 0, ac.length);
-        System.arraycopy(an, 0, both, ac.length, an.length);
-        return both;
+    /**
+     * Returns a full list of Button mappings 
+     * @param playerName
+     * @return 
+     */
+    public static String[] getButtons(String playerName) {
+        controlInputs[] cI = Buttons.controlInputs.values();
+        String[] temp = new String[cI.length];
+        for (int i = 0; i < cI.length; i++) {
+            temp[i] =  playerName + ":"+cI[i].toString();
+        }
+        return temp;
     }
 }

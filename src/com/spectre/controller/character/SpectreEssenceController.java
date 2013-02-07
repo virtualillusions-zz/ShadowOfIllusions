@@ -146,4 +146,16 @@ public class SpectreEssenceController extends SpectreAbstractController {
     //this.gui = GUI;
     //gui.start(spatial);
     //}
+
+    void cardInfo(int i, boolean pressed) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void gatherFocus(boolean pressed) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void reshuffleDeck() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }

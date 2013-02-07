@@ -159,10 +159,10 @@ public class SpectrePlayerController extends SpectreAbstractController implement
     public void enableInput(boolean enabled) {
         if (enabled == true) {
             InputManager iM = Director.getApp().getInputManager();
-            iM.addListener(getInputCont(), Buttons.getBoth(getPlayerName()));
+            iM.addListener(getInputCont(), Buttons.getButtons(getPlayerName()));
         } else {
             InputManager iM = Director.getApp().getInputManager();
-            for (String s : Buttons.getBoth(getPlayerName())) {
+            for (String s : Buttons.getButtons(getPlayerName())) {
                 iM.deleteMapping(s);
             }
             iM.removeListener(getInputCont());
@@ -213,7 +213,6 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(playerName, "name", null);
         oc.write(playerhighScore, "playerhighScore", 0);
-        oc.write(sic, "spectreInputController", null);
     }
 
     @Override
@@ -221,6 +220,5 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         InputCapsule ic = im.getCapsule(this);
         playerName = ic.readString("name", null);
         playerhighScore = ic.readInt("playerhighScore", 0);
-        sic = (SpectreInputController) ic.readSavable("spectreInputController", null);
     }
 }

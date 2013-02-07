@@ -5,6 +5,7 @@
 package com.spectre.controller.character;
 
 import com.jme3.animation.Bone;
+import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
@@ -20,6 +21,7 @@ import com.jme3.util.TempVars;
 import com.spectre.app.SpectreAbstractController;
 import com.spectre.controller.character.SpectreAnimationController.AnimPriority;
 import com.spectre.director.Director;
+import java.util.logging.Level;
 
 /**
  * This class controls all physics aspect of the character THE KEYWORD IS DAMAGE
@@ -40,13 +42,13 @@ import com.spectre.director.Director;
 // */
 public class SpectrePhysicsController extends SpectreAbstractController implements RagdollCollisionListener, PhysicsCollisionListener {
 
-    private KinematicRagdollControl ragdoll;
     private CharacterControl character;
+    private PhysicsSpace space;
     private boolean actionMode = false;
     private float airTime = 0.0f;
     private float altitude = 0.0f;//calculate altitute, used specifically to check if jumping or falling
     private boolean isMoving = false;
-    private Vector3f special = new Vector3f();
+    private Vector3f special = new Vector3f();//Holds Vector for Dash or Roll
     private float DirectionFD = 0;
     private float DirectionLR = 0;
     private final float joggingSpeed = 0.75f;
@@ -115,22 +117,20 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
             jump = false;
         }
 
-
         TempVars var = TempVars.get();//Create temporary values
         Vector3f walkDirection = var.vect1.zero();//Zero out walk Direction
         float interpolateScalar = 0.01f;//Used later on to create smooth transitions speeding up or slowing down
         boolean setViewDirection = false;//because of some slight issues with view direction use this boolean to determine if it should be set or not
-
+/*LANDED*/
         if (character.onGround() && airTime > 0.3f) {
-
-            this.animUpdate(4);
+            animUpdate(4);
             interpolateScalar = 1f;//by doing this will be set to 0 to simulate since just fell
+/*IN AIR*/
         } else if (getIsInAir()) {//is character jumpting or falling
-
             animUpdate(3);
             walkDirection.set(character.getWalkDirection());//if jumping keep going in same direction
+/*DASH OR ROLL*/
         } else if (!special.equals(Vector3f.ZERO)) {//check if character dash or roll
-
             special.interpolate(Vector3f.ZERO, 0.01f);
 
             walkDirection.set(special);
@@ -140,6 +140,7 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
             if (FastMath.abs(special.getX()) < 0.1f && FastMath.abs(special.getZ()) < 0.1f) {//put after set walk direction so don't interrput viewDirection
                 special.zero();
             }
+            /*Walking*/
         } else if (DirectionFD != 0 || DirectionLR != 0) {//If no special vector then look at player movement input
 
             animUpdate(1);
@@ -268,7 +269,7 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         value = FastMath.abs(value);
         value = value >= .5f ? joggingSpeed : walkingSpeed;
         highestSpeed = highestSpeed < value ? value : highestSpeed;//if LR or UD at .75 then switch to that one instead 
-       
+
         return value * sign;
     }
 
@@ -335,56 +336,68 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
 
     //Used to collect collision information
     public void collision(PhysicsCollisionEvent event) {//character
-        if (event.getNodeA().getName().contains("DAMAGE") || event.getNodeB().getName().contains("DAMAGE")) {
-            if (event.getNodeA().getUserData("playerName").equals(getPlayerName()) || event.getNodeB().getUserData("playerName").equals(getPlayerName())) {
-                //DEPENDING ON DAMAGE TAKEN GET 
-                character.setEnabled(false);
-                ragdoll.setEnabled(true);
-                ragdoll.setRagdollMode();
-            }
-        }
+//        if (event.getNodeA().getName().contains("DAMAGE") || event.getNodeB().getName().contains("DAMAGE")) {
+//            if (event.getNodeA().getUserData("playerName").equals(getPlayerName()) || event.getNodeB().getUserData("playerName").equals(getPlayerName())) {
+//            }
+//        }
     }
 
     @Override
-    public void startUp() {
+    public void setSpatial(Spatial spat) {
+        super.setSpatial(spat);
         special.zero();
 
-        //SETUP RAGDOLLCONTROL
-        if (spatial.getControl(KinematicRagdollControl.class) != null) {
-            ragdoll = spatial.getControl(KinematicRagdollControl.class);
-        } else {
-            ragdoll = new KinematicRagdollControl(0.5f);
-            //ragdoll.addCollisionListener(this);
-            spatial.addControl(ragdoll);
-        }
-        Director.getPhysicsSpace().add(ragdoll);
-        ragdoll.setEnabled(false);//by default set to false
-
-        //SETUP CHARACTERCONTROL
-        com.jme3.bounding.BoundingBox bb = (com.jme3.bounding.BoundingBox) spatial.getWorldBound();
-        float diameter = bb.getXExtent() > bb.getZExtent() ? bb.getXExtent() : bb.getZExtent();
-        float height = bb.getYExtent() / 2 - diameter / 4;
-
+        
+        
         if (spatial.getControl(CharacterControl.class) != null) {
             character = spatial.getControl(CharacterControl.class);
         } else {
-            character = new CharacterControl(new CapsuleCollisionShape(diameter, height), bb.getYExtent() );
-            spatial.addControl(character);
-        }
-        //character.setGravity(character.getGravity() * .1f);
-        //character.setJumpSpeed();//height * 15f * 3);
-        character.setFallSpeed(height * 15f * 3);
+            //SETUP CHARACTERCONTROL
+            com.jme3.bounding.BoundingBox bb = (com.jme3.bounding.BoundingBox) spatial.getWorldBound();
+            float diameter = bb.getXExtent() > bb.getZExtent() ? bb.getXExtent() : bb.getZExtent();
+            float height = bb.getYExtent() / 2 - diameter / 4;
 
-        //Director.getPhysicsSpace().addCollisionListener(this);
-        Director.getPhysicsSpace().add(character);
+            character = new CharacterControl(new CapsuleCollisionShape(diameter, height), bb.getYExtent());
+            spatial.addControl(character);
+
+            character.setFallSpeed(height * 15f * 3);
+
+        }
+
+        Director.getPhysicsSpace().addCollisionListener(this);
+        getPhysicsSpace().add(character);
+        
+        character.setEnabled(false);
+        
+        KinematicRagdollControl k = new KinematicRagdollControl(0.5f);
+        spatial.addControl(k);
+        getPhysicsSpace().add(k);
+        
+        //logger.log(Level.INFO, "Created physics ghost skeleton for {0}", spatial.getName());
     }
 
     @Override
     public void cleanUp() {
         super.cleanUp();
-        Director.getPhysicsSpace().remove(ragdoll);
         Director.getPhysicsSpace().remove(character);
-        //Director.getPhysicsSpace().removeCollisionListener(this);
+        Director.getPhysicsSpace().removeCollisionListener(this);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (!enabled && space != null) {
+            getPhysicsSpace().remove(character);
+        } else if (enabled && space != null) {
+            getPhysicsSpace().add(character);
+        }
+    }
+
+    private PhysicsSpace getPhysicsSpace() {
+        if (space == null) {
+            space = Director.getPhysicsSpace();
+        }
+        return space;
     }
 
     public Control cloneForSpatial(Spatial spatial) {

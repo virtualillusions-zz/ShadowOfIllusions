@@ -33,10 +33,6 @@ package com.spectre.app;
 
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.input.FlyByCamera;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -47,7 +43,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.spectre.director.Director;
-import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -904,7 +899,6 @@ public class SpectreCameraController extends SpectreAbstractController {
     private float offsetDistance = 0.002f;
     private Vector3f prevPos;
     private boolean targetMoves = false;
-    private Camera cam = null;
     private final Vector3f targetDir = new Vector3f();
     private float previousTargetRotation;
     private final Vector3f pos = new Vector3f();
@@ -915,36 +909,8 @@ public class SpectreCameraController extends SpectreAbstractController {
     private boolean zoomin;
     private PhysicsSpace pSpace = null;
     private Vector3f maxPos = new Vector3f();
-    private float sensitivity = 0.025f;
+    private float sensitivity = 2.5f;
     private Node rootNode;
     private Spatial lockOnTarget;
     private boolean lockOn;
-
-    /**
-     * Write the camera
-     *
-     * @param ex the exporter
-     * @throws IOException
-     */
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
-        OutputCapsule capsule = ex.getCapsule(this);
-        capsule.write(maxDistance, "maxDistance", 40);
-        capsule.write(minDistance, "minDistance", 1);
-    }
-
-    /**
-     * Read the camera
-     *
-     * @param im
-     * @throws IOException
-     */
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-        InputCapsule ic = im.getCapsule(this);
-        maxDistance = ic.readFloat("maxDistance", 40);
-        minDistance = ic.readFloat("minDistance", 1);
-    }
 }

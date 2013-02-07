@@ -18,14 +18,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * AnimData animation = (AnimData) manager.loadAsset(skelPath);
- * basic moves are idle
- * all weaponANimation to contain attack in name
+ * AnimData animation = (AnimData) manager.loadAsset(skelPath); basic moves are
+ * idle all weaponANimation to contain attack in name
+ *
  * @author Kyle Williams
  */
 public class SpectreAnimationController extends SpectreAbstractController implements AnimEventListener {
 
     public enum AnimPriority {
+
         DEBUG,
         IDLE,
         MOVEMENT,
@@ -47,16 +48,16 @@ public class SpectreAnimationController extends SpectreAbstractController implem
     private boolean animCompleted = true;//Used to check if current animation completed
     private float idleTimer = 0;//Used to check if its okay to Idle
 
-    //is the character 
     /**
      * <pre>
-     * Set Character Resting Animation 
+     * Set Character Resting Animation
      * IDEALLY Bound from 1-3
      * 1.healthy
-     * 2.tired 
+     * 2.tired
      * 3.injured
      * </pre>
-     * @param state 
+     *
+     * @param state
      */
     public void changeCharState(int state) {
         int cState = isActionMode == false ? state : 3 + state;
@@ -64,10 +65,11 @@ public class SpectreAnimationController extends SpectreAbstractController implem
     }
 
     /**
-     *  <pre>Set modifer button 
+     * <pre>Set modifer button
      * caster = false
      * action = true </pre>
-     * @param modiferButton 
+     *
+     * @param modiferButton
      */
     public void setMod(boolean modiferButton) {
         isActionMode = modiferButton;
@@ -75,13 +77,14 @@ public class SpectreAnimationController extends SpectreAbstractController implem
 
     /**
      * <pre>Used to change the resting state of the character. < br >
-     * 1: Mode: Caster - State: Healthy 
-     * 2: Mode: Caster - State: Tired 
-     * 3: Mode: Caster - State: Injured 
-     * 4: Mode: Action - State: Healthy 
-     * 5: Mode: Action - State: Tired 
+     * 1: Mode: Caster - State: Healthy
+     * 2: Mode: Caster - State: Tired
+     * 3: Mode: Caster - State: Injured
+     * 4: Mode: Action - State: Healthy
+     * 5: Mode: Action - State: Tired
      * 6: Mode: Action - State: Injured </pre>
-     * @param state 
+     *
+     * @param state
      */
     private void changeIdleState(int state) {
         //Check if state exists if it doesn't change until a state is found all characters must have idle as an animation
@@ -129,8 +132,10 @@ public class SpectreAnimationController extends SpectreAbstractController implem
     }
 
     /**
-     * Used to copy a basic set of animations such as walking running idle etc from another skeleton
-     * @param animSetName 
+     * Used to copy a basic set of animations such as walking running idle etc
+     * from another skeleton
+     *
+     * @param animSetName
      */
     public void changeBasicAnimSet(String animSetName) {
         for (Animation data : Director.getAnimations(animSetName).anims) {
@@ -139,8 +144,10 @@ public class SpectreAnimationController extends SpectreAbstractController implem
     }
 
     /**
-     * Used to copy a weapon set of animations such as attack1, attack 2 etc from another skeleton
-     * @param animSetName 
+     * Used to copy a weapon set of animations such as attack1, attack 2 etc
+     * from another skeleton
+     *
+     * @param animSetName
      */
     public void changeWeaponAnimSet(String animSetName) {
         //First to prevent any issue remove all previous attacks
@@ -160,8 +167,9 @@ public class SpectreAnimationController extends SpectreAbstractController implem
 
     /**
      * Change currently playing animation if priority is higher
+     *
      * @param animName
-     * @param priority 
+     * @param priority
      */
     public void changeAnimation(String animName, AnimPriority priority) {
         changeAnimation(animName, priority, 0.15f);//use default blen time
@@ -169,51 +177,53 @@ public class SpectreAnimationController extends SpectreAbstractController implem
 
     /**
      * Change currently playing animation if priority is higher
-     * @param animName
-     * @param priority 
-     * @param loopMode 
-     */
-    public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode) {
-        changeAnimation(animName, priority, 0.15f, loopMode,1.0f,0f);//use default blen time
-    }
-
-    /**
-     * Change currently playing animation if priority is higher
+     *
      * @param animName
      * @param priority
-     * @param blendTime 
+     * @param loopMode
      */
-    public void changeAnimation(String animName, AnimPriority priority, float blendTime) {
-        changeAnimation(animName, priority, blendTime, LoopMode.DontLoop,1.0f,0f);
+    public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode) {
+        changeAnimation(animName, priority, 0.15f, loopMode, 1.0f, 0f);//use default blen time
     }
 
     /**
      * Change currently playing animation if priority is higher
+     *
+     * @param animName
+     * @param priority
+     * @param blendTime
+     */
+    public void changeAnimation(String animName, AnimPriority priority, float blendTime) {
+        changeAnimation(animName, priority, blendTime, LoopMode.DontLoop, 1.0f, 0f);
+    }
+
+    /**
+     * Change currently playing animation if priority is higher
+     *
      * @param animName
      * @param priority
      * @param loopMode
      * @param speed
-     * @param startTime 
+     * @param startTime
      */
-    public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode,float speed,float startTime) {
-        changeAnimation(animName, priority, 0.15f, loopMode,speed,startTime);
+    public void changeAnimation(String animName, AnimPriority priority, LoopMode loopMode, float speed, float startTime) {
+        changeAnimation(animName, priority, 0.15f, loopMode, speed, startTime);
     }
-    
+
     /**
      * Change currently playing animation if priority is higher
+     *
      * @param animName
      * @param priority
-     * @param blendTime 
+     * @param blendTime
      */
-    public void changeAnimation(String animName, AnimPriority priority, float blendTime,LoopMode loopMode,float speed,float startTime) {
-        if (priority.ordinal() > currentPriority||priority.ordinal()==AnimPriority.DEBUG.ordinal()) {
+    public void changeAnimation(String animName, AnimPriority priority, float blendTime, LoopMode loopMode, float speed, float startTime) {
+        if (priority.ordinal() > currentPriority || priority.ordinal() == AnimPriority.DEBUG.ordinal()) {
             if (control.getAnim(animName) == null) {//if animation not present try and laod it
                 Animation a = Director.getAnimation(animName);
                 if (a == null) {
                     com.spectre.app.SpectreApplication.logger.log(
-                            java.util.logging.Level.INFO,//.SEVERE,
-                            "Animation " + animName + " cannot be found in the loaded animation list");//,
-                    //);//new java.io.IOException());
+                            java.util.logging.Level.INFO, "Animation {0} cannot be found in the loaded animation list", animName);
                     return; // unable to load animation
                 }
                 control.addAnim(a);
@@ -295,15 +305,16 @@ public class SpectreAnimationController extends SpectreAbstractController implem
         Collections.sort(boneList);
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
-        SpectreAnimationController sac = new SpectreAnimationController();
-        sac.boneList = this.boneList;
-        sac.control = this.control;
-        sac.currentPriority = this.currentPriority;
-        sac.enabled = this.enabled;
-        sac.idleName = this.idleName;
-        sac.mainChannel = this.mainChannel;
-        sac.setSpatial(spatial);//Most is done here
-        return sac;
+        SpectreAnimationController sacTwo = new SpectreAnimationController();
+        sacTwo.boneList = this.boneList;
+        sacTwo.control = this.control;
+        sacTwo.currentPriority = this.currentPriority;
+        sacTwo.enabled = this.enabled;
+        sacTwo.idleName = this.idleName;
+        sacTwo.mainChannel = this.mainChannel;
+        sacTwo.setSpatial(spatial);//Most is done here
+        return sacTwo;
     }
 }
