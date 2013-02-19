@@ -34,16 +34,18 @@ public final class MOXyImporterExporter {
         try {
             String s = indexPath == null ? "com.spectre.deck.card" : indexPath;
             jc = JAXBContext.newInstance(s, MOXyImporterExporter.class.getClassLoader());
-            
+
             marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty("eclipselink.media-type", "application/json");
-            
+
             unmarshaller = jc.createUnmarshaller();
             unmarshaller.setProperty("eclipselink.media-type", "application/json");
         } catch (JAXBException ex) {
-            // Exceptions.printStackTrace(ex);
-            System.out.println("FCK!!");
+            com.spectre.app.SpectreApplication.logger.log(
+                    java.util.logging.Level.SEVERE,
+                    ex.toString(),
+                    ex);
         }
     }
 
@@ -69,12 +71,12 @@ public final class MOXyImporterExporter {
                 throw new NoSuchMethodException("The Field Path must be of either type File or OutputStream");
             }
             setJAXBContext(null);
-        } catch (NoSuchMethodException ex) {
-            // Exceptions.printStackTrace(ex); 
-        } catch (JAXBException ex) {
-            // Exceptions.printStackTrace(ex);
+        } catch (Exception ex) {
+            com.spectre.app.SpectreApplication.logger.log(
+                    java.util.logging.Level.SEVERE,
+                    ex.toString(),
+                    ex);
         }
-
     }
 
     public static <T> void write(T savable, Class<T> type, Object path, String rootName, String indexPath) {
@@ -85,10 +87,11 @@ public final class MOXyImporterExporter {
 
     /**
      * Saves an unaltered object to a specified location
-     * @param <T>       The Generic Type Being Loaded
-     * @param savable   The Specific Java Object beign saved
+     *
+     * @param <T> The Generic Type Being Loaded
+     * @param savable The Specific Java Object beign saved
      * @param type The Specified type of a class
-     * @param path      The path in which the file should be saved to
+     * @param path The path in which the file should be saved to
      */
     public static <T> void write(T savable, Class<T> type, Object path) {
         try {
@@ -101,13 +104,15 @@ public final class MOXyImporterExporter {
                 throw new NoSuchMethodException("The Field Path must be of either type File or OutputStream");
             }
             setJAXBContext(null);
-        } catch (NoSuchMethodException ex) {
-            // Exceptions.printStackTrace(ex);
-        } catch (JAXBException ex) {
-            // Exceptions.printStackTrace(ex);
+        } catch (Exception ex) {
+            com.spectre.app.SpectreApplication.logger.log(
+                    java.util.logging.Level.SEVERE,
+                    ex.toString(),
+                    ex);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T read(Class<T> type, Object path, String indexPath) {
         setJAXBContext(indexPath);
         Object o = read(type, path);
@@ -116,12 +121,13 @@ public final class MOXyImporterExporter {
     }
 
     /**
-     * Loads an XML file previously saved through JAXB to be used methods have been 
-     * encorporated to load custom root tags
-     * @param <T>  The generic Type Being loaded
+     * Loads an XML file previously saved through JAXB to be used methods have
+     * been encorporated to load custom root tags
+     *
+     * @param <T> The generic Type Being loaded
      * @param type The Specified Type of the class
      * @param path The path in which to locate the file to be loaded
-     * @return 
+     * @return
      */
     @SuppressWarnings("unchecked")
     public static <T> T read(Class<T> type, Object path) {
@@ -137,10 +143,11 @@ public final class MOXyImporterExporter {
             }
 
             return (T) root.getValue();
-        } catch (NoSuchMethodException ex) {
-            // Exceptions.printStackTrace(ex);
-        } catch (JAXBException ex) {
-            // Exceptions.printStackTrace(ex);
+        } catch (Exception ex) {
+            com.spectre.app.SpectreApplication.logger.log(
+                    java.util.logging.Level.SEVERE,
+                    ex.toString(),
+                    ex);
         }
         return null;
     }

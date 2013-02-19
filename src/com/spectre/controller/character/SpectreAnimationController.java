@@ -12,7 +12,7 @@ import com.jme3.animation.LoopMode;
 import com.jme3.animation.Skeleton;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.spectre.app.SpectreAbstractController;
+import com.spectre.controller.character.impl.AbstractSpectreController;
 import com.spectre.director.Director;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.Collections;
  *
  * @author Kyle Williams
  */
-public class SpectreAnimationController extends SpectreAbstractController implements AnimEventListener {
+public class SpectreAnimationController extends AbstractSpectreController implements AnimEventListener {
 
     public enum AnimPriority {
 
@@ -47,6 +47,7 @@ public class SpectreAnimationController extends SpectreAbstractController implem
     private boolean isActionMode = false;
     private boolean animCompleted = true;//Used to check if current animation completed
     private float idleTimer = 0;//Used to check if its okay to Idle
+    private int cState;//character state healthy tired or injured used to prevent reseting of idle
 
     /**
      * <pre>
@@ -60,8 +61,10 @@ public class SpectreAnimationController extends SpectreAbstractController implem
      * @param state
      */
     public void changeCharState(int state) {
-        int cState = isActionMode == false ? state : 3 + state;
-        this.changeIdleState(cState);
+        int characterState = isActionMode == false ? state : 3 + state;
+        if (characterState != cState) {
+            changeIdleState(cState);
+        }
     }
 
     /**
@@ -129,6 +132,7 @@ public class SpectreAnimationController extends SpectreAbstractController implem
                 }
                 break;
         }
+        this.cState = state;
     }
 
     /**
@@ -275,7 +279,6 @@ public class SpectreAnimationController extends SpectreAbstractController implem
 
     @Override
     public void startUp() {
-        super.startUp();
         if (control == null) {//To comply with clone for spatial
             control = spatial.getControl(com.jme3.animation.AnimControl.class);
             if (control.getNumChannels() < 1) {

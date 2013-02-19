@@ -97,10 +97,11 @@ public class Effect implements Cloneable {
     }
 
     public void addEmitter(String emitterName) {
-        if (emitters == null) {
-            emitters = new ArrayList<String>();
-        }
-        emitters.add(emitterName);
+        getEmitters().add(emitterName);
+    }
+    
+    public void removeEmitter(String emitterName){
+        getEmitters().remove(emitterName);
     }
 
     public ArrayList<String> getEmitters() {

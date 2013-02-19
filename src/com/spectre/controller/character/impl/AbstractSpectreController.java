@@ -2,26 +2,29 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spectre.app;
+package com.spectre.controller.character.impl;
 
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 import com.spectre.controller.character.SpectreAnimationController;
-import com.spectre.controller.character.SpectreEssenceController;
+import com.spectre.controller.character.SpectreCameraController;
+import com.spectre.controller.character.SpectreDuelController;
 import com.spectre.controller.character.SpectreInputController;
 import com.spectre.controller.character.SpectrePhysicsController;
 import com.spectre.controller.character.SpectrePlayerController;
 
 /**
+ * An abstract AbstractControl implementation of the SpectreControl interface.
+ * Used for character Management
  *
  * @author Kyle Williams
  */
-public abstract class SpectreAbstractController extends AbstractControl {
+public abstract class AbstractSpectreController extends AbstractControl implements SpectreControl {
 
     protected SpectreAnimationController sac;//set in SpectrePlayerController
-    protected SpectreEssenceController sec;
+    protected SpectreDuelController sec;
     protected SpectreInputController sic;//set in SpectrePlayerController
     protected SpectrePhysicsController sphc;//pre-loaded
     protected SpectrePlayerController spc;//Set or created by player
@@ -44,8 +47,8 @@ public abstract class SpectreAbstractController extends AbstractControl {
     }
 
     /**
-     * A class that handles all animation for the model
-     * Set at characterLoading
+     * A class that handles all animation for the model Set at characterLoading
+     *
      * @return CharacterAnimationController
      */
     public SpectreAnimationController getAnimCont() {
@@ -56,20 +59,21 @@ public abstract class SpectreAbstractController extends AbstractControl {
     }
 
     /**
-     * A class that handles all life and focus functions of the player
-     * Set in GameState
+     * A class that handles all life and focus functions of the player Set in
+     * GameState
+     *
      * @return SpectreEssenceController
      */
-    public SpectreEssenceController getEssenceCont() {
+    public SpectreDuelController getEssenceCont() {
         if (sec == null) {
-            sec = spatial.getControl(SpectreEssenceController.class);
+            sec = spatial.getControl(SpectreDuelController.class);
         }
         return sec;
     }
 
     /**
-     * A class that handles all inputs for the model
-     * Set at characterLoading
+     * A class that handles all inputs for the model Set at characterLoading
+     *
      * @return inputHandler
      */
     public SpectreInputController getInputCont() {
@@ -80,8 +84,8 @@ public abstract class SpectreAbstractController extends AbstractControl {
     }
 
     /**
-     * Returns the Spatial this Player is in control of
-     * Set at characterLoading
+     * Returns the Spatial this Player is in control of Set at characterLoading
+     *
      * @return spatial
      */
     public SpectrePhysicsController getPhysCont() {
@@ -99,8 +103,9 @@ public abstract class SpectreAbstractController extends AbstractControl {
     }
 
     /**
-     * Returns the current Players Name 
-     * @return 
+     * Returns the current Players Name
+     *
+     * @return
      */
     public String getPlayerName() {
         if (playerName == null) {
@@ -118,6 +123,7 @@ public abstract class SpectreAbstractController extends AbstractControl {
 
     /**
      * TODO: CREATE DESTROYABLE CAMERAS TO GIVE AWAY FOR PLAYERCONTROLLER
+     *
      * @param tpf
      */
     public Camera getCamera() {

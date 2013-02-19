@@ -15,6 +15,9 @@ import com.spectre.director.Director;
 import java.util.ArrayList;
 
 /**
+ * * Remember: if self kill particles at end animation if particles 0 if
+ * duration lon and particles not 0 kill at end of duration else kill particles
+ * when make contact
  *
  * @author Kyle Williams
  */
@@ -82,7 +85,8 @@ public class EffectHandler {
     }
 
     /**
-     * Use cleanUp instead when ending the use of the whole module and not only the effect
+     * Use cleanUp instead when ending the use of the whole module and not only
+     * the effect
      */
     public void destroy() {
         if (playing == true) {

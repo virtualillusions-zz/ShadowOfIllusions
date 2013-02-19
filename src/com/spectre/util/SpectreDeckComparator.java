@@ -5,21 +5,21 @@
 package com.spectre.util;
 
 import com.spectre.deck.card.Card;
-import com.spectre.deck.card.CardStats;
+import com.spectre.deck.card.CardCharacteristics;
 import java.util.Comparator;
 
 /**
  *
  * @author Kyle
  */
-public class SpectreComparator {
+public final class SpectreDeckComparator {
 
-    public final static Comparator lexiSortSeries = new Comparator<CardStats.CardSeries>() {
-        public int compare(CardStats.CardSeries o1, CardStats.CardSeries o2) {
+    public static Comparator lexiSortSeries = new Comparator<CardCharacteristics.CardSeries>() {
+        public int compare(CardCharacteristics.CardSeries o1, CardCharacteristics.CardSeries o2) {
             return o1.toString().compareTo(o2.toString());
         }
     };
-    public final static Comparator lexiSortCard = new Comparator<Card>() {
+    public static Comparator lexiSortCard = new Comparator<Card>() {
         public int compare(Card o1, Card o2) {
             return o1.getName().compareTo(o2.getName());
         }

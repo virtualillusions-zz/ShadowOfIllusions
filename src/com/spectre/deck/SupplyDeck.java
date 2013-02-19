@@ -5,23 +5,25 @@
 package com.spectre.deck;
 
 import com.spectre.deck.card.Card;
-import com.spectre.deck.card.CardStats.CardSeries;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A Concurrent Hashmap used to store Card Objects in an organized and logical
- * manner TODO: repurpose and remove extending concurrent map instead initialize
- * it in constructor SUPPLYDECK SHOULD CAN ACTUALLY BECOME STATIC CLASS
+ * <b>NickName:</b> Master Deck <br/>
+ *
+ * <b>Purpose:</b> Repository of All Cards In Game <br/>
+ *
+ * <b>Description:</b> A Concurrent and thus thread-safe
+ * <code>HashMap</code> used to store Card Objects in an organized and logical
+ * manner. This Class serves as a Master Deck which all other cards reference;
+ * as such their should only ever be a single instance of this class at any
+ * given time.
  *
  * @author Kyle Williams
  */
-public class SupplyDeck {
+public final class SupplyDeck {
 
-    private ConcurrentHashMap<String, Card> supplyDeck;
+    private final ConcurrentHashMap<String, Card> supplyDeck;
 
     public SupplyDeck() {
         supplyDeck = new ConcurrentHashMap<String, Card>();
@@ -36,7 +38,7 @@ public class SupplyDeck {
      * @param card value to associate with the table
      * @return the previous value associated with the <tt>name of the card</tt>,
      * or <tt>null</tt> if there was no mapping for the <tt>name of the
-     * card</tt>
+     * card</tt> <br/> <b>Internally used</b>
      * @throws NullPointerException if the specified card is null
      */
     public Card put(Card card) {
@@ -50,7 +52,7 @@ public class SupplyDeck {
     /**
      * Copies all of the mappings from the specified map to this one. These
      * mappings replace any mappings that this map had for any of the keys
-     * currently in the specified map.
+     * currently in the specified map. <br/> <b>Internally used</b>
      *
      * @param m<String, Card> mappings to be stored in this map
      */
@@ -65,7 +67,8 @@ public class SupplyDeck {
      *
      * @param cardName the name of the card
      * @return the previous value associated with <tt>cardName</tt>, or
-     * <tt>null</tt> if there was no card by the name <tt>cardName</tt>
+     * <tt>null</tt> if there was no card by the name <tt>cardName</tt> <br/>
+     * <b>Internally used</b>
      * @throws NullPointerException if the specified key is null
      */
     public Card remove(String cardName) {
@@ -73,52 +76,12 @@ public class SupplyDeck {
     }
 
     /**
-     * {@inheritDoc}
+     * <br/> <b>Internally used</b>
      *
      * @throws NullPointerException if the specified key is null
      */
     public boolean remove(String cardName, Card card) {
         return supplyDeck.remove(cardName, card);
-    }
-
-    /**
-     * Creates and returns a list of cards in a specified series
-     *
-     * @param cardSeries
-     * @return Cards in the specified Series
-     */
-    public ArrayList<Card> filterCardsBySeries(CardSeries cardSeries, boolean lexiOrder) {
-        ArrayList<Card> cards = new ArrayList<Card>();
-        for (Card card : supplyDeck.values()) {
-            if (cardSeries.equals(card.getSeries())) {
-                cards.add(card);
-            }
-        }
-        if (lexiOrder) {
-            Collections.sort(cards, new Comparator<Card>() {
-                @Override
-                public int compare(Card o1, Card o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
-        }
-        return cards;
-    }
-
-    /**
-     * Creates and returns a list of cards in a specified series
-     *
-     * @param cardSeries
-     * @return Cards in the specified Series
-     */
-    public ArrayList<String> filterCardNamesBySeries(CardSeries cardSeries) {
-        ArrayList<String> cards = new ArrayList<String>();
-        for (Card card : supplyDeck.values()) {
-            if (cardSeries.equals(card.getSeries())) {
-                cards.add(card.getName());
-            }
-        }
-        return cards;
     }
 
     public boolean containsKey(String ID) {

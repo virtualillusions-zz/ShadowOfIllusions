@@ -35,7 +35,7 @@ public abstract class SpectreApplication extends Application {
     protected Node guiNode = new Node("GUI Node");
     protected Node modelSubNode = new Node("Model Node");
     protected Node sceneSubNode = new Node("Scene Node");
-    public static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.jme3");
+    public static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("com.spectre");
     private Camera[] playerCams = new Camera[4];
     private int camCount = 0;
 

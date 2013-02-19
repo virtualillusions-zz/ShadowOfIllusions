@@ -16,6 +16,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
+import com.spectre.controller.character.SpectreDuelController.SpectreCharacterAttributes;
 import com.spectre.controller.character.SpectrePhysicsController;
 import com.spectre.controller.character.SpectrePlayerController;
 import com.spectre.deck.SupplyDeck;
@@ -355,6 +356,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         playerList = (HashMap<String, SpectrePlayerController>) ic.readStringSavableMap("playerList", null);

@@ -1,7 +1,7 @@
 package com.spectre.util.JSON;
 
-import com.spectre.deck.card.Card;
 import com.spectre.deck.SupplyDeck;
+import com.spectre.deck.card.Card;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,10 +9,10 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-//import org.openide.util.Exceptions;
 
 /**
  * Exports a Deck of cards to an XML database for storage
@@ -21,12 +21,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class MasterDeckJSONImporterExporter {
 
-    /**
-     * SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy'T'HH:mm:ss");
-     * String date = sdf.format(new Date()); System.out.println(date); Date d =
-     * sdf.parse(date);
-     */
-    private static SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy hh:mm:ss.SS a, z");
+    private final static SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy hh:mm:ss.SS a, z");
 
     /**
      * SHOULD ONLY BE USED FOR LOCALE EXPORT
@@ -67,9 +62,9 @@ public class MasterDeckJSONImporterExporter {
                     zos.close();
                 } catch (IOException ex) {
                     com.spectre.app.SpectreApplication.logger.log(
-                            java.util.logging.Level.INFO,
+                            java.util.logging.Level.SEVERE,
                             "Problems during cleaning up the I/O.",
-                            new java.io.IOException());
+                            ex);
                 }
             }
         }
@@ -115,7 +110,6 @@ public class MasterDeckJSONImporterExporter {
                     String date = sdf.format(deck.get(key).getDateModified());
                     if (!date.equals(m.getValue())) {
                         throw new IOException("Their are either cards missing or extra cards that was not their previously \n this deck should be carefully revaluated for consistency");
-
                     }
                 } else {
                     throw new IOException("Their are either cards missing or extra cards that was not their previously \n this deck should be carefully revaluated for consistency");
@@ -125,10 +119,8 @@ public class MasterDeckJSONImporterExporter {
             //IF Everything Golden then return deck
             return deck;
         } catch (IOException ex) {
-            com.spectre.app.SpectreApplication.logger.log(
-                    java.util.logging.Level.INFO,
-                    ex.toString(),
-                    new java.io.IOException());
+            com.spectre.app.SpectreApplication.logger.log(Level.SEVERE,
+                    ex.toString(),ex);
         } finally {
             try {
                 if (zipFile != null) {
@@ -139,9 +131,9 @@ public class MasterDeckJSONImporterExporter {
                 }
             } catch (IOException problemsDuringClose) {
                 com.spectre.app.SpectreApplication.logger.log(
-                        java.util.logging.Level.INFO,
+                        java.util.logging.Level.WARNING,
                         "Problems during cleaning up the I/O.",
-                        new java.io.IOException());
+                        problemsDuringClose);
             }
         }
         return null;

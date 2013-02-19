@@ -12,13 +12,13 @@ import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.RagdollCollisionListener;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.KinematicRagdollControl;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
-import com.spectre.app.SpectreAbstractController;
+import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.spectre.app.SpectreApplication;
 import com.spectre.controller.character.SpectreAnimationController.AnimPriority;
 import com.spectre.director.Director;
 import java.util.logging.Level;
@@ -40,7 +40,7 @@ import java.util.logging.Level;
 // * Remember: Search and replace all locations that calls Card
 // * @author Kyle Williams 
 // */
-public class SpectrePhysicsController extends SpectreAbstractController implements RagdollCollisionListener, PhysicsCollisionListener {
+public class SpectrePhysicsController extends AbstractSpectreController implements RagdollCollisionListener, PhysicsCollisionListener {
 
     private CharacterControl character;
     private PhysicsSpace space;
@@ -347,8 +347,8 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
         super.setSpatial(spat);
         special.zero();
 
-        
-        
+
+
         if (spatial.getControl(CharacterControl.class) != null) {
             character = spatial.getControl(CharacterControl.class);
         } else {
@@ -362,23 +362,17 @@ public class SpectrePhysicsController extends SpectreAbstractController implemen
 
             character.setFallSpeed(height * 15f * 3);
 
+            SpectreApplication.logger.log(Level.INFO, "Created physics ghost skeleton for {0}", spatial.getName());
         }
 
         Director.getPhysicsSpace().addCollisionListener(this);
         getPhysicsSpace().add(character);
-        
-        character.setEnabled(false);
-        
-        KinematicRagdollControl k = new KinematicRagdollControl(0.5f);
-        spatial.addControl(k);
-        getPhysicsSpace().add(k);
-        
-        //logger.log(Level.INFO, "Created physics ghost skeleton for {0}", spatial.getName());
+
+
     }
 
     @Override
     public void cleanUp() {
-        super.cleanUp();
         Director.getPhysicsSpace().remove(character);
         Director.getPhysicsSpace().removeCollisionListener(this);
     }

@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.spectre.app;
+package com.spectre.controller.character;
 
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
@@ -42,6 +42,7 @@ import com.jme3.renderer.Camera.FrustumIntersect;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.spectre.controller.character.impl.AbstractSpectreController;
 import com.spectre.director.Director;
 import java.util.LinkedList;
 
@@ -49,12 +50,19 @@ import java.util.LinkedList;
  * This Camera is a spatial Controller used to give players view into the world.
  * It pays special attention to the world and reacts to collision accordingly as
  * such it is a modified version of the ChaseCamera for a Physics enabled
- * environment
+ * environment. Attached To Spatial
+ * via{@link com.spectre.controller.character.SpectrePlayerController#setModel(String)}
  *
  * @author Kyle Williams [MODIFIED FROM com.jme3.input.ChaseCamera by
  * @author nehon ]
  */
-public class SpectreCameraController extends SpectreAbstractController {
+public class SpectreCameraController extends AbstractSpectreController {
+
+    /**
+     * A Character Control Used to handle Character Camera
+     */
+    public SpectreCameraController() {
+    }
 
     /**
      * Sets the spacial for the camera control, should only be used internally
@@ -79,7 +87,6 @@ public class SpectreCameraController extends SpectreAbstractController {
 
     @Override
     public void startUp() {
-        super.startUp();
         if (cam == null) {
             setCamera(Director.getApp().addCamera());
         }
@@ -87,7 +94,6 @@ public class SpectreCameraController extends SpectreAbstractController {
 
     @Override
     public void cleanUp() {
-        super.cleanUp();
         cam = null;
     }
 
@@ -130,6 +136,7 @@ public class SpectreCameraController extends SpectreAbstractController {
             zoomCamera(getMaxDistance());
         }
         //Makes sure physicsSpace is set and when it is set and zooms the camera out
+        @SuppressWarnings("unchecked")
         LinkedList<PhysicsRayTestResult> testResults = (LinkedList) pSpace.rayTest(spatial.getWorldTranslation(), maxPos);
         float hf = 1f;//hitFraction
         if (testResults != null && testResults.size() > 0) {

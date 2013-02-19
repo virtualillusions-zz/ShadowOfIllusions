@@ -1,4 +1,8 @@
-package com.spectre.deck.controller;
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.spectre.controller.character;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -8,16 +12,13 @@ import com.jme3.export.Savable;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.spectre.deck.card.Card;
+import com.spectre.deck.controller.CardHandler;
 import java.io.IOException;
 import java.util.LinkedList;
 
-// * To change this template, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package com.spectre.deck;
-//
 ///**
 // * Esper Flair Identification Card
 // * TODO: SET UP THIS FIELD LOOK AT BOMBCONTROL FOR ASSISANCE IN jme3test.bullet;
@@ -30,22 +31,32 @@ import java.util.LinkedList;
 //
 //
 //LET IT BE KNOWN CARD MANIFEST CONTROLLER WILL BECOME ANIMATIONMANIFESTCONTROLLER AND WILL CONTROL ALL ANIMATION OF SPATIAL CHARACTERS
+//attached in SpectreCharacterController
+//should be attached in GameState
 // */
-public class CardManifestController extends com.jme3.scene.control.AbstractControl implements Savable {
+public class CardManifestController extends AbstractControl implements Savable {
 
     private LinkedList<CardHandler> cardUpdateQueue;
     private boolean isPlayingAnim = false;
 
     /**
-     * Activates a Card Object
-     * This Constructor adds a card to the queue if and only if a card Animation is not currently playing
-     * @param card 
+     * Activates a Card Object This Constructor adds a card to the queue if and
+     * only if a card Animation is not currently playing
+     *
+     * @param card
      */
-    public void addToActiveQueue(Card card) {
-        if (isPlaying() == false) {
-            CardHandler cardNode = new CardHandler(card, getSpatial());
-            cardUpdateQueue.add(cardNode);
-        }
+    public boolean addToActiveQueue(Card card) {
+        return false;
+//        if (isPlaying() == false) {
+//            CardHandler cardNode = new CardHandler(card, getSpatial());
+//            cardUpdateQueue.add(cardNode);
+//            return true;
+//        }
+//        return false;
+    }
+
+    public void feedBack(String card) {
+        //System.out.println(card+" feedback");
     }
 
     public void setPlayingAnim(boolean isPlaying) {
@@ -72,11 +83,14 @@ public class CardManifestController extends com.jme3.scene.control.AbstractContr
         cardUpdateQueue.clear();
     }
 
-    /***
-     * needs work only initial
-     * Checks for isPlayingAnim boolean if true other cards will not be allowed to enter the update queue until a uneventful update loop
-     * Checks for isDone if it is done then the card can be destroyed and removed from the update Queue;
-     * @param f 
+    /**
+     * *
+     * needs work only initial Checks for isPlayingAnim boolean if true other
+     * cards will not be allowed to enter the update queue until a uneventful
+     * update loop Checks for isDone if it is done then the card can be
+     * destroyed and removed from the update Queue;
+     *
+     * @param f
      */
     @Override
     protected void controlUpdate(float tpf) {

@@ -9,6 +9,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.spectre.deck.ArsenalDeck.DeckType;
 import com.spectre.deck.card.Card;
 import com.spectre.director.Director;
 import java.io.IOException;
@@ -19,60 +20,74 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 /**
- * A class to Store All Cards Owned by the player
+ * <b>NickName:</b> Repo <br/>
+ *
+ * <b>Purpose:</b> Repository of All Cards Player Owns <br/>
+ *
+ * <b>Description:</b> A RepositoryDeck is a class to store all cards owned by
+ * the player
+ *
  * @author Kyle Williams
  */
-public class RepositoryDeck implements Savable {
+public final class RepositoryDeck implements Savable {
 
-    private Collection<CardInfo> repository;
-    private ArrayList<ArsenalDeck> arsenalList;
+    private final Collection<CardInfo> repository;
+    private final ArrayList<ArsenalDeck> arsenalList;
 
     /**
-     * By using this constructor this ArsenalDeck is considered a
-     * Repository and is bound by limitation
-     * Repository: encompasses all cards player owns 
-     * @param repo 
+     * By using this constructor this ArsenalDeck is considered a Repository and
+     * is bound by limitation Repository: encompasses all cards player owns
+     *
+     * @param repo
      */
     public RepositoryDeck() {
         repository = new HashSet<CardInfo>();
         arsenalList = new ArrayList<ArsenalDeck>();
     }
 
-    public ArsenalDeck createArsenalDeck(String name) {
-        ArsenalDeck aD = new ArsenalDeck(name);
+    /**
+     * Creates a brand new Arsenal Deck
+     *
+     * @param name
+     * @return
+     */
+    public ArsenalDeck createArsenalDeck(String name, DeckType type) {
+        ArsenalDeck aD = new ArsenalDeck(name, type);
         arsenalList.add(aD);
         return aD;
     }
 
-    public ArsenalDeck getArsenalDeck(String deckName){
-	for(ArsenalDeck a: arsenalList){
-		if(a.getDeckName().equals(deckName)){
-			return a;
-		}
-	}
-	return null;
+    public ArsenalDeck getArsenalDeck(String deckName) {
+        for (ArsenalDeck a : arsenalList) {
+            if (a.getName().equals(deckName)) {
+                return a;
+            }
+        }
+        return null;
     }
 
-    public boolean removeArsenalDeck(String name){
-	for (Iterator<ArsenalDeck> i = arsenalList.iterator(); i.hasNext();) {
+    public boolean deleteArsenalDeck(String name) {
+        for (Iterator<ArsenalDeck> i = arsenalList.iterator(); i.hasNext();) {
             ArsenalDeck aD = i.next();
-            if (aD.getDeckName().equals(name)) {
-                i.remove();                
+            if (aD.getName().equals(name)) {
+                i.remove();
                 return true;
             }
         }
         return false;
     }
-    public boolean removeArsenalDeck(ArsenalDeck deck){
-	return arsenalList.remove(deck);
+
+    public boolean deleteArsenalDeck(ArsenalDeck deck) {
+        return arsenalList.remove(deck);
     }
 
     /**
-     * Used Specifically for 
+     * Returns the Card Info Specified
+     *
      * @param cardName
-     * @return 
+     * @return
      */
-    public CardInfo getCardInfo(String cardName) {
+    private CardInfo getCardInfo(String cardName) {
         for (CardInfo c : repository) {
             if (c.name.equals(cardName)) {
                 return c;
@@ -81,28 +96,31 @@ public class RepositoryDeck implements Savable {
         return null;
     }
 
-    public boolean add(String cardName){
-	return add(cardName,null);
+    public boolean add(String cardName) {
+        return add(cardName, null);
     }
-    public boolean add(Card c){
-	return add(c.getName(),c.getSeries().toString());
+
+    public boolean add(Card c) {
+        return add(c.getName(), c.getSeries().toString());
     }
-    public boolean add(String cardName,String seriesName) {
+
+    public boolean add(String cardName, String seriesName) {
         CardInfo c = getCardInfo(cardName);
         if (c != null) {
             c.cardCount++;
             return true;
         }
 
-	if(seriesName==null){
-        	seriesName = Director.getCard(cardName).getSeries().toString();
+        if (seriesName == null) {
+            seriesName = Director.getCard(cardName).getSeries().toString();
         }
         return repository.add(new CardInfo(cardName, seriesName));
     }
 
-    public boolean remove(Card c){
+    public boolean remove(Card c) {
         return remove(c.getName());
     }
+
     public boolean remove(String cardName) {
         for (Iterator<CardInfo> i = repository.iterator(); i.hasNext();) {
             CardInfo cI = i.next();
@@ -119,7 +137,8 @@ public class RepositoryDeck implements Savable {
 
     /**
      * Returns the Card Count of all of the cards in the arsenal
-     * @return 
+     *
+     * @return
      */
     public int size() {
         int size = 0;
@@ -138,10 +157,12 @@ public class RepositoryDeck implements Savable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         CardInfo[] cI = (CardInfo[]) ic.readSavableArray("repository", new CardInfo[1]);
-        repository = new HashSet<CardInfo>(Arrays.asList(cI));
-        arsenalList = ic.readSavableArrayList("arsenalList", new ArrayList<ArsenalDeck>());
+        repository.addAll(Arrays.asList(cI));
+        Collection<ArsenalDeck> aD = ic.readSavableArrayList("arsenalList", new ArrayList<ArsenalDeck>());
+        arsenalList.addAll(aD);
     }
 }

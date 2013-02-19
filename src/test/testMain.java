@@ -24,9 +24,19 @@ import com.jme3.system.AppSettings;
 import com.spectre.app.SpectreApplication;
 import com.spectre.controller.character.*;
 import com.spectre.controller.scene.SceneController;
+import com.spectre.deck.ArsenalDeck;
+import com.spectre.deck.ArsenalDeck.DeckType;
+import com.spectre.deck.RepositoryDeck;
+import com.spectre.deck.SupplyDeck;
+import com.spectre.deck.card.Card;
+import com.spectre.deck.card.CardCharacteristics;
 import com.spectre.director.Director;
+import com.spectre.util.AbstractCard;
 import com.spectre.util.Buttons;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import test.physics.PhysicsTestHelper;
 
 /**
@@ -47,7 +57,7 @@ public class testMain extends SpectreApplication {
         settings.setUseJoysticks(true);
         app.setSettings(settings);
         app.start();
-        //Logger.getLogger("").setLevel(Level.WARNING);
+        Logger.getLogger("").setLevel(Level.FINE);
     }
 
     @Override
@@ -81,12 +91,32 @@ public class testMain extends SpectreApplication {
                 //Setting the direction to Spatial to camera, this means the camera will copy the movements of the Node
                 camNode.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
                 //attaching the camNode to the teaNode
-                ((Node) Director.getPlayer("KYLO").getSpatial()).attachChild(camNode);
+                Node spat = ((Node) Director.getPlayer("KYLO").getSpatial());
+                spat.attachChild(camNode);
                 //setting the local translation of the cam node to move it away from the teanNode a bit
                 camNode.setLocalTranslation(new Vector3f(0, 8, -60));
                 //setting the camNode to look at the teaNode
                 camNode.lookAt(Director.getPlayer("KYLO").getSpatial().getLocalTranslation(), Vector3f.UNIT_Y);
 
+                SpectreDuelController cc = spat.getControl(SpectreDuelController.class);
+
+
+                SupplyDeck sD = new SupplyDeck();
+                RepositoryDeck rD = Director.getPlayer("KYLO").getRepo();
+                ArsenalDeck aD = Director.getPlayer("KYLO").getRepo().createArsenalDeck("Arsenal", DeckType.TRIPLE_CAPACITY);
+                for (int i = 0; i < 500; i++) {
+                    Card c = AbstractCard.createNewCard("Card: " + i, CardCharacteristics.CardSeries.Nature);
+                    sD.put(c);
+                    rD.add(c);
+                    aD.add(c);
+                }
+
+                System.out.println(sD.size());
+                System.out.println(rD.size());
+                System.out.println(aD.size());
+                Director.setCardList(sD);
+                LinkedList<String> d = aD.createDeck();
+                cc.setActiveDeck(d);
             }
         });
     }
@@ -96,7 +126,7 @@ public class testMain extends SpectreApplication {
         character.scale(.5f);
         character.setLocalTranslation(0, 10, 0);
 
-        character.addControl(new SpectreEssenceController());//gamestate
+        character.addControl(new SpectreDuelController());//gamestate
         SpectrePhysicsController sPc = new SpectrePhysicsController();//character
         character.addControl(sPc);
         HashMap<String, SpectrePhysicsController> cL = new HashMap<String, SpectrePhysicsController>();

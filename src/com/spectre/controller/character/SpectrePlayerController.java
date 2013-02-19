@@ -12,22 +12,26 @@ import com.jme3.export.Savable;
 import com.jme3.input.InputManager;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.spectre.app.SpectreAbstractController;
-import com.spectre.app.SpectreCameraController;
+import com.spectre.app.SpectreApplication;
 import com.spectre.controller.character.gui.CardGUIController;
+import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.spectre.controller.character.impl.SpectreControl;
+import com.spectre.deck.RepositoryDeck;
 import com.spectre.director.Director;
 import com.spectre.util.Buttons;
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
- * This Controller is used to handle all player information TODO: UPDATE
+ * This Controller is used to handle all player information
  *
  * @author Kyle Williams
  */
-public class SpectrePlayerController extends SpectreAbstractController implements Savable {
+public class SpectrePlayerController extends AbstractSpectreController implements Savable {
 
     /*This is to keep track of players highest total Score*/
     private int playerhighScore = 0;
+    private RepositoryDeck repo;
 
     /**
      * The Highest Score the player has
@@ -54,6 +58,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
      */
     public SpectrePlayerController(String name) {
         this.playerName = name;
+        repo = new RepositoryDeck();
     }
 
     /**
@@ -62,6 +67,10 @@ public class SpectrePlayerController extends SpectreAbstractController implement
     @Override
     public String getPlayerName() {
         return playerName;
+    }
+
+    public RepositoryDeck getRepo() {
+        return repo;
     }
 
     /**
@@ -96,11 +105,11 @@ public class SpectrePlayerController extends SpectreAbstractController implement
     public void setSpectreControllers(boolean isStartUp) {
         for (int i = 0; i < getModel().getNumControls(); i++) {
             Control cont = getModel().getControl(i);
-            if (cont != this && cont instanceof SpectreAbstractController) {
+            if (cont != this && cont instanceof SpectreControl) {
                 if (isStartUp == true) {
-                    ((SpectreAbstractController) cont).startUp();
+                    ((SpectreControl) cont).startUp();
                 } else {
-                    ((SpectreAbstractController) cont).cleanUp();
+                    ((SpectreControl) cont).cleanUp();
                 }
             }
         }
@@ -213,6 +222,7 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(playerName, "name", null);
         oc.write(playerhighScore, "playerhighScore", 0);
+        oc.write(repo, "repo", new RepositoryDeck());
     }
 
     @Override
@@ -220,5 +230,16 @@ public class SpectrePlayerController extends SpectreAbstractController implement
         InputCapsule ic = im.getCapsule(this);
         playerName = ic.readString("name", null);
         playerhighScore = ic.readInt("playerhighScore", 0);
+        repo = (RepositoryDeck) ic.readSavable("repo", new RepositoryDeck());
+    }
+
+    @Override
+    public void startUp() {
+        SpectreApplication.logger.log(Level.INFO, "Adding {0} to the field", playerName);
+    }
+
+    @Override
+    public void cleanUp() {
+        SpectreApplication.logger.log(Level.INFO, "Removing {0} to the field", playerName);
     }
 }

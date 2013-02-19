@@ -12,7 +12,6 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.spectre.app.SpectreApplication;
-import com.spectre.director.Director;
 
 /**
  *
@@ -20,7 +19,7 @@ import com.spectre.director.Director;
  */
 public class Buttons {
 
-    public enum controlInputs {
+    public enum ControlInputs {
 
         /**
          * Caster Mode:Perform/Remap Action 1 <br><br> Action Mode:Jump
@@ -40,46 +39,46 @@ public class Buttons {
          */
         Action4,
         /**
-         * Caster Mode:Change To Previous Target
+         * Change To Previous Target
          */
-        Action5,
+        PrevTarget,
         /**
-         * Caster Mode:Change To Next Target
+         * Change To Next Target
          */
-        Action6,
+        NextTarget,
         /**
          * TAP: LOCK ON/OFF
          */
-        Action7,
+        LockOn,
         /**
          * RESET CAMERA VIEW
          */
-        Action8,
+        CenterCamera,
         /**
          * Caster Mode:GatherFocus(While Still) <br><br> Action Mode:Perform
          * Special Maneuver
          */
-        LeftTrigger,
+        Alt,
         /**
          * HOLD: Enter Action Mode <br><br> Release:Enter Caster Mode
          */
-        RightTrigger,
+        Mode,
         /**
          * Show Explanation of Mapped Action 1
          */
-        DPadDown,
+        Info1,
         /**
          * Show Explanation of Mapped Action 2
          */
-        DPadRight,
+        Info2,
         /**
          * Show Explanation of Mapped Action 3
          */
-        DPadUp,
+        Info3,
         /**
          * Show Explanation of Mapped Action 4
          */
-        DPadLeft,
+        Info4,
         /**
          * Menu
          */
@@ -91,35 +90,35 @@ public class Buttons {
         /**
          * Move Character Towards Camera
          */
-        LeftThumbstickDown,
+        CharacterBack,
         /**
          * Move Character Away From Camera
          */
-        LeftThumbstickUp,
+        CharacterForward,
         /**
          * Move Character Right Of Camera
          */
-        LeftThumbstickRight,
+        CharacterRight,
         /**
          * Move Character Left Of Camera
          */
-        LeftThumbstickLeft,
+        CharacterLeft,
         /**
          * Move Camera Down
          */
-        RightThumbstickDown,
+        CameraDown,
         /**
          * Move Camera Up
          */
-        RightThumbstickUp,
+        CameraUp,
         /**
          * Move Camera Right
          */
-        RightThumbstickRight,
+        CameraRight,
         /**
          * Move Camera Left
          */
-        RightThumbstickLeft,;
+        CameraLeft,;
     }
 
     //SIDE NOTE USE THIS AS PART OF SETUP CALL IN GAMESTATE
@@ -128,35 +127,35 @@ public class Buttons {
         if (playerNum <= 0) {
             return;
         }
-        manager.addMapping(playerName + ":" + controlInputs.Action1, new KeyTrigger(KeyInput.KEY_1));
-        manager.addMapping(playerName + ":" + controlInputs.Action2, new KeyTrigger(KeyInput.KEY_2));
-        manager.addMapping(playerName + ":" + controlInputs.Action3, new KeyTrigger(KeyInput.KEY_3));
-        manager.addMapping(playerName + ":" + controlInputs.Action4, new KeyTrigger(KeyInput.KEY_4));
-        manager.addMapping(playerName + ":" + controlInputs.Action5, new KeyTrigger(KeyInput.KEY_Q));
-        manager.addMapping(playerName + ":" + controlInputs.Action6, new KeyTrigger(KeyInput.KEY_E));
-        manager.addMapping(playerName + ":" + controlInputs.Action7, new KeyTrigger(KeyInput.KEY_F));
-        manager.addMapping(playerName + ":" + controlInputs.Action8, new KeyTrigger(KeyInput.KEY_R), new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
+        manager.addMapping(playerName + ":" + ControlInputs.Action1, new KeyTrigger(KeyInput.KEY_1));
+        manager.addMapping(playerName + ":" + ControlInputs.Action2, new KeyTrigger(KeyInput.KEY_2));
+        manager.addMapping(playerName + ":" + ControlInputs.Action3, new KeyTrigger(KeyInput.KEY_3));
+        manager.addMapping(playerName + ":" + ControlInputs.Action4, new KeyTrigger(KeyInput.KEY_4));
+        manager.addMapping(playerName + ":" + ControlInputs.PrevTarget, new KeyTrigger(KeyInput.KEY_Q));
+        manager.addMapping(playerName + ":" + ControlInputs.NextTarget, new KeyTrigger(KeyInput.KEY_E));
+        manager.addMapping(playerName + ":" + ControlInputs.LockOn, new KeyTrigger(KeyInput.KEY_F));
+        manager.addMapping(playerName + ":" + ControlInputs.CenterCamera, new KeyTrigger(KeyInput.KEY_R), new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
 
-        manager.addMapping(playerName + ":" + controlInputs.Back, new KeyTrigger(KeyInput.KEY_BACK));
-        manager.addMapping(playerName + ":" + controlInputs.Start, new KeyTrigger(KeyInput.KEY_RETURN));
+        manager.addMapping(playerName + ":" + ControlInputs.Back, new KeyTrigger(KeyInput.KEY_BACK));
+        manager.addMapping(playerName + ":" + ControlInputs.Start, new KeyTrigger(KeyInput.KEY_RETURN));
 
-        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickUp, new KeyTrigger(KeyInput.KEY_W));
-        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickDown, new KeyTrigger(KeyInput.KEY_S));
-        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickLeft, new KeyTrigger(KeyInput.KEY_A));
-        manager.addMapping(playerName + ":" + controlInputs.LeftThumbstickRight, new KeyTrigger(KeyInput.KEY_D));
+        manager.addMapping(playerName + ":" + ControlInputs.CharacterForward, new KeyTrigger(KeyInput.KEY_W));
+        manager.addMapping(playerName + ":" + ControlInputs.CharacterBack, new KeyTrigger(KeyInput.KEY_S));
+        manager.addMapping(playerName + ":" + ControlInputs.CharacterLeft, new KeyTrigger(KeyInput.KEY_A));
+        manager.addMapping(playerName + ":" + ControlInputs.CharacterRight, new KeyTrigger(KeyInput.KEY_D));
 
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickDown, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickUp, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickLeft, new MouseAxisTrigger(MouseInput.AXIS_X, true));
-        manager.addMapping(playerName + ":" + controlInputs.RightThumbstickRight, new MouseAxisTrigger(MouseInput.AXIS_X, false));
+        manager.addMapping(playerName + ":" + ControlInputs.CameraDown, new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+        manager.addMapping(playerName + ":" + ControlInputs.CameraUp, new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+        manager.addMapping(playerName + ":" + ControlInputs.CameraLeft, new MouseAxisTrigger(MouseInput.AXIS_X, true));
+        manager.addMapping(playerName + ":" + ControlInputs.CameraRight, new MouseAxisTrigger(MouseInput.AXIS_X, false));
 
-        manager.addMapping(playerName + ":" + controlInputs.LeftTrigger, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        manager.addMapping(playerName + ":" + controlInputs.RightTrigger, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        manager.addMapping(playerName + ":" + ControlInputs.Alt, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        manager.addMapping(playerName + ":" + ControlInputs.Mode, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
-        manager.addMapping(playerName + ":" + controlInputs.DPadRight, new KeyTrigger(KeyInput.KEY_RIGHT));
-        manager.addMapping(playerName + ":" + controlInputs.DPadLeft, new KeyTrigger(KeyInput.KEY_LEFT));
-        manager.addMapping(playerName + ":" + controlInputs.DPadUp, new KeyTrigger(KeyInput.KEY_UP));
-        manager.addMapping(playerName + ":" + controlInputs.DPadDown, new KeyTrigger(KeyInput.KEY_DOWN));
+        manager.addMapping(playerName + ":" + ControlInputs.Info2, new KeyTrigger(KeyInput.KEY_RIGHT));
+        manager.addMapping(playerName + ":" + ControlInputs.Info4, new KeyTrigger(KeyInput.KEY_LEFT));
+        manager.addMapping(playerName + ":" + ControlInputs.Info3, new KeyTrigger(KeyInput.KEY_UP));
+        manager.addMapping(playerName + ":" + ControlInputs.Info1, new KeyTrigger(KeyInput.KEY_DOWN));
     }
     // </editor-fold> 
 
@@ -202,39 +201,40 @@ public class Buttons {
 
         Joystick js = manager.getJoysticks()[playerNum - 1];
 
-        js.getButton(Xbox360.A.getID()).assignButton(playerName + ":" + controlInputs.Action1);
-        js.getButton(Xbox360.B.getID()).assignButton(playerName + ":" + controlInputs.Action2);
-        js.getButton(Xbox360.Y.getID()).assignButton(playerName + ":" + controlInputs.Action3);
-        js.getButton(Xbox360.X.getID()).assignButton(playerName + ":" + controlInputs.Action4);
-        js.getButton(Xbox360.LeftShoulder.getID()).assignButton(playerName + ":" + controlInputs.Action5);
-        js.getButton(Xbox360.RightShoulder.getID()).assignButton(playerName + ":" + controlInputs.Action6);
-        js.getButton(Xbox360.LeftStick.getID()).assignButton(playerName + ":" + controlInputs.Action7);
-        js.getButton(Xbox360.RightStick.getID()).assignButton(playerName + ":" + controlInputs.Action8);
-        js.getButton(Xbox360.Back.getID()).assignButton(playerName + ":" + controlInputs.Back);
-        js.getButton(Xbox360.Start.getID()).assignButton(playerName + ":" + controlInputs.Start);
+        js.getButton(Xbox360.A.getID()).assignButton(playerName + ":" + ControlInputs.Action1);
+        js.getButton(Xbox360.B.getID()).assignButton(playerName + ":" + ControlInputs.Action2);
+        js.getButton(Xbox360.Y.getID()).assignButton(playerName + ":" + ControlInputs.Action3);
+        js.getButton(Xbox360.X.getID()).assignButton(playerName + ":" + ControlInputs.Action4);
+        js.getButton(Xbox360.LeftShoulder.getID()).assignButton(playerName + ":" + ControlInputs.PrevTarget);
+        js.getButton(Xbox360.RightShoulder.getID()).assignButton(playerName + ":" + ControlInputs.NextTarget);
+        js.getButton(Xbox360.LeftStick.getID()).assignButton(playerName + ":" + ControlInputs.LockOn);
+        js.getButton(Xbox360.RightStick.getID()).assignButton(playerName + ":" + ControlInputs.CenterCamera);
+        js.getButton(Xbox360.Back.getID()).assignButton(playerName + ":" + ControlInputs.Back);
+        js.getButton(Xbox360.Start.getID()).assignButton(playerName + ":" + ControlInputs.Start);
 
-        js.getAxis(Xbox360.LeftThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftThumbstickDown, playerName + ":" + controlInputs.LeftThumbstickUp);
-        js.getAxis(Xbox360.LeftThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftThumbstickRight, playerName + ":" + controlInputs.LeftThumbstickLeft);
-        js.getAxis(Xbox360.RightThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.RightThumbstickDown, playerName + ":" + controlInputs.RightThumbstickUp);
-        js.getAxis(Xbox360.RightThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + controlInputs.RightThumbstickRight, playerName + ":" + controlInputs.RightThumbstickLeft);
-        js.getAxis(Xbox360.LeftRightTriggerAxis.getID()).assignAxis(playerName + ":" + controlInputs.LeftTrigger, playerName + ":" + controlInputs.RightTrigger);
-        js.getAxis(Xbox360.DPadRightLeftAxis.getID()).assignAxis(playerName + ":" + controlInputs.DPadRight, playerName + ":" + controlInputs.DPadLeft);
-        js.getAxis(Xbox360.DPadUpDownAxis.getID()).assignAxis(playerName + ":" + controlInputs.DPadDown, playerName + ":" + controlInputs.DPadUp);
+        js.getAxis(Xbox360.LeftThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + ControlInputs.CharacterBack, playerName + ":" + ControlInputs.CharacterForward);
+        js.getAxis(Xbox360.LeftThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + ControlInputs.CharacterRight, playerName + ":" + ControlInputs.CharacterLeft);
+        js.getAxis(Xbox360.RightThumbstickUpDownAxis.getID()).assignAxis(playerName + ":" + ControlInputs.CameraDown, playerName + ":" + ControlInputs.CameraUp);
+        js.getAxis(Xbox360.RightThumbstickLeftRightAxis.getID()).assignAxis(playerName + ":" + ControlInputs.CameraRight, playerName + ":" + ControlInputs.CameraLeft);
+        js.getAxis(Xbox360.LeftRightTriggerAxis.getID()).assignAxis(playerName + ":" + ControlInputs.Alt, playerName + ":" + ControlInputs.Mode);
+        js.getAxis(Xbox360.DPadRightLeftAxis.getID()).assignAxis(playerName + ":" + ControlInputs.Info2, playerName + ":" + ControlInputs.Info4);
+        js.getAxis(Xbox360.DPadUpDownAxis.getID()).assignAxis(playerName + ":" + ControlInputs.Info1, playerName + ":" + ControlInputs.Info3);
 
         manager.setAxisDeadZone(0.2f);
     }
     // </editor-fold>
 
     /**
-     * Returns a full list of Button mappings 
+     * Returns a full list of Button mappings
+     *
      * @param playerName
-     * @return 
+     * @return
      */
     public static String[] getButtons(String playerName) {
-        controlInputs[] cI = Buttons.controlInputs.values();
+        ControlInputs[] cI = Buttons.ControlInputs.values();
         String[] temp = new String[cI.length];
         for (int i = 0; i < cI.length; i++) {
-            temp[i] =  playerName + ":"+cI[i].toString();
+            temp[i] = playerName + ":" + cI[i].toString();
         }
         return temp;
     }
