@@ -1,0 +1,45 @@
+<configuration>
+    <property name="defaultPattern2"
+              value="%d{HH:mm:ss.SSS} [%thread] %-5level %class{0}.%method:%L - %msg%n" />
+    <property name="defaultPattern"
+              value="%d{MMM dd yyyy hh:mm:ss.SSS a} [%thread] %class{0}.%method:%L%n%-5level: %msg%n" />
+    <!-- Appenders Configuration -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+        ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%red(${defaultPattern})</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log/logFile.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>log/archive/logFile.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%n${defaultPattern}</pattern>
+        </encoder>
+    </appender>     
+    <!--Redirect J.U.L. to logback ie java utility logger-->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <!--
+        Remember to set In Code something along the lines of
+        ///Only set this section first if want to ignore config file. Take note must be before J.U.L. reset
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(ch.qos.logback.classic.Level.TRACE);     
+        ///   
+        java.util.logging.LogManager.getLogManager().reset();
+        org.slf4j.bridge.SLF4JBridgeHandler.install();
+        java.util.logging.Logger.getLogger("global").setLevel(java.util.logging.Level.FINEST);        
+        -->
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    <!-- Output Configuration -->
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
