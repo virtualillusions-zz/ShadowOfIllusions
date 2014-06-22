@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : characterList.xml
+    Created on : January 19, 2011, 12:18 PM
+    Author     : Kyle Williams
+    Description: A Full List of All Characters Within the game for more information please see INFO.txt
+
+-->
+
+<characterList>
+    <!--BasicMovement
+            Type: Psychic
+        SpecialMovement
+            Type:  jump     dash    dive 
+        <character name="Reino" BasicMovement="Stealth" SpecialMovement="dash" location="Models/Reino/Reino.j3o" />
+    -->
+	<character name="Reina" basicSet="" type="dash" weapon="katana" location="Models/Reina/Reina.j3o" />
+</characterList>

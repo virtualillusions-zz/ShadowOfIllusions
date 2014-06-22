@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : MusicList.xml
+    Created on : February 20, 2011, 5:07 PM
+    Author     : Kyle Williams
+    Description:
+        Purpose of the document follows.
+-->
+
+<musicList>
+    <!-- Tag List
+        * Ambient
+        * Battle
+        * Lose
+    -->
+    <Song tag="Ambient"     artist="Receptor"           title="Run Run Run"            location="Music/etc/Receptor_RunRunRun.ogg" />
+</musicList>

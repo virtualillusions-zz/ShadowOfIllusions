@@ -1,0 +1,8 @@
+Remember
+
+Remember to look at seperate JME shading package 
+    Good for sprites character effects and Shields
+
+All models should be loaded in JMP and run through the TangentBinormalGenerator
+
+EveryCharacter should have a preconfigured PhysicsController added from sceneComposer

@@ -1,0 +1,11 @@
+Material totemTest : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {       
+
+        DiffuseMap : Scenes/sceneElements/totemColorMap.dds
+        NormalMap : Scenes/sceneElements/totemNormalMap.dds
+        GlowColor : 1.0 0.8 0.0 1.0
+     }
+    AdditionalRenderState {
+
+    }
+}

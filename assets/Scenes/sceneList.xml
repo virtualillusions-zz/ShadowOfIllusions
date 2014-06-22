@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : sceneList.xml
+    Created on : January 22, 2011, 4:56 PM
+    Author     : Kyle Williams
+    Description: A Full List of All Scenes Within the game. Please see INFO.txt for additional information
+    TODO: remember city stiching idea ie each part represents another section of the city so can represent city streets and sections by parts
+          this will relieve the striain of building a complete city one shot by instead creating smaller more detailed city sections and adding
+          them together 
+          EXAMPLE:      12345567865
+                        1  32432368881
+                         24765   341
+-->
+
+<sceneList>
+    <preRebellion>
+    </preRebellion>
+    <duringRebellion>
+    </duringRebellion>
+    <postRebellion>
+        <scene name="CyberPlane" numberOfPlayers="4" section="?" location="Scenes/Misc/CyberPlane.j3o" totem="totemTest" />        
+    </postRebellion>
+    <misc>
+	<scene name="DemoScene" numberOfPlayers="1" section="?" location="Scenes/Misc/DemoScene.j3o" totem="totemTest" />
+    </misc>
+    <sceneElements>
+        <totem id="totemTest" location="Scenes/sceneElements/totemTest.j3o" />
+    </sceneElements>
+</sceneList> 

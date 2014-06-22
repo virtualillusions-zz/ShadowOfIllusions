@@ -1,0 +1,584 @@
+material Hair
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.018919 0.016285 0.017018 1.000000
+			specular 0.000000 0.000000 0.000000 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Head
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.768627 0.586667 0.514510 1.000000
+			specular 0.276471 0.219608 0.198039 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Shirt
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture shirt_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture shirt.png
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture shirt_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture shirt.png
+			}
+		}
+	}
+}
+material Coat
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture coat_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture coat.png
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture coat_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture coat.png
+			}
+		}
+	}
+}
+material Arms.001
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.768627 0.586667 0.514510 1.000000
+			specular 0.276471 0.219608 0.198039 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material extras.001
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture extra_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture extra.png
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture extra_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture extra.png
+			}
+		}
+	}
+}
+material extras
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture extra_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture extra.png
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture extra_normal.png
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture extra.png
+			}
+		}
+	}
+}
+material Black
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.029926 0.029926 0.029926 1.000000
+			specular 0.187869 0.187869 0.187869 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Dark Metal
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.056288 0.059371 0.064176 1.000000
+			specular 0.433833 0.433833 0.433833 1.000000 50.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Dark Cloth
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.142311 0.132106 0.108507 1.000000
+			specular 0.017465 0.017465 0.017465 1.000000 7.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material White
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.640000 0.640000 0.640000 1.000000
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Light Metal
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 1.000000 1.000000 1.000000 1.000000
+			diffuse 0.374227 0.374227 0.374227 1.000000
+			specular 0.433833 0.433833 0.433833 1.000000 50.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}

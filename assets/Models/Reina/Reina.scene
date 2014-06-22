@@ -1,0 +1,79 @@
+<scene formatVersion="1.0.0">
+  <nodes>
+    <node name="geo2-Arms">
+      <position x="0.000000" y="1.558093" z="-0.057111"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.497495" y="0.497495" z="0.497495"/>
+      <entity name="geo2-Arms" meshFile="geo2-Arms.mesh"/>
+    </node>
+    <node name="geo2-Hair">
+      <position x="-0.006915" y="1.789332" z="-0.034596"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo2-Hair" meshFile="geo2-Hair.mesh"/>
+    </node>
+    <node name="geo2-Coat">
+      <position x="0.000000" y="1.239687" z="-0.014383"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo2-Coat" meshFile="geo2-Coat.mesh"/>
+    </node>
+    <node name="geo2-extra">
+      <position x="0.000000" y="0.000000" z="0.000000"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo2-extra" meshFile="geo2-extra.mesh"/>
+    </node>
+    <node name="geo2-Shirt">
+      <position x="0.000000" y="1.368364" z="0.009388"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo2-Shirt" meshFile="geo2-Shirt.mesh"/>
+    </node>
+    <node name="geo-Acc-Belt">
+      <position x="-0.003521" y="1.138949" z="0.034317"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo-Acc-Belt" meshFile="geo-Acc-Belt.mesh"/>
+    </node>
+    <node name="geo2-Head">
+      <position x="0.000000" y="1.724852" z="-0.001649"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo2-Head" meshFile="geo2-Head.mesh"/>
+    </node>
+    <node name="geo-Acc-Necklace">
+      <position x="0.000059" y="1.620992" z="-0.042782"/>
+      <quaternion x="0.000000" y="0.000000" z="-0.000000" w="1.000000"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo-Acc-Necklace" meshFile="geo-Acc-Necklace.mesh"/>
+    </node>
+    <node name="geo-Acc-Goggles">
+      <position x="0.000000" y="1.777182" z="0.033602"/>
+      <quaternion x="0.707107" y="0.000000" z="-0.000000" w="0.707107"/>
+      <scale x="0.494308" y="0.494308" z="0.494308"/>
+      <entity name="geo-Acc-Goggles" meshFile="geo-Acc-Goggles.mesh"/>
+    </node>
+    <node name="Weapon">
+      <position x="0.156185" y="1.196807" z="0.150975"/>
+      <quaternion x="0.089149" y="0.674171" z="0.244048" w="0.691366"/>
+      <scale x="0.386865" y="0.386865" z="0.386865"/>
+      <entity name="Weapon" meshFile="Weapon.mesh"/>
+    </node>
+    <node name="Sheathe">
+      <position x="0.228755" y="0.941530" z="0.012711"/>
+      <quaternion x="0.082946" y="0.685485" z="0.243573" w="0.681104"/>
+      <scale x="0.386865" y="0.386865" z="0.386865"/>
+      <entity name="Sheathe" meshFile="Sheathe.mesh"/>
+    </node>
+  </nodes>
+  <externals>
+    <item type="material">
+      <file name="Scene.material"/>
+    </item>
+  </externals>
+  <environment>
+    <colourAmbient r="0.000000" g="0.000000" b="0.000000"/>
+    <colourBackground r="0.050876" g="0.050876" b="0.050876"/>
+  </environment>
+</scene>

@@ -1,0 +1,5 @@
+All players share the same rig and thus the same animations. 
+
+On special cases additional rigs can be made however previous naming conventions should be brought over to comply with the current systsem.
+
+Failure to comply will result in odd occurences with character animations.

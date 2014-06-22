@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Animations.xml
+    Created on : January 17, 2011, 1:01 PM
+    Author     : Kyle Williams
+    Description: A Template Containing All Animations and the location to find the rest
+-->
+<Animations>
+    <!-- The Location of the Main Skeleton-
+    <Skeleton location="Models/Animations/Skeleton.skeleton.xml" />
+    A Basic Set is the base set of moves that a character should always have on hand
+    A New one should be made for every set ::: Please Put in order
+    <BasicSet   idle="Basic_idle"   	forward="Basic_forward"   	fall="Basic_fall"   	jump="Basic_jump"   	dash="Basic_dash"   	dive="Basic_dive" 		/>
+    <PsychicSet idle="Psychic_idle"	forward="Psychic_forward" 	fall="Psychic_fall" 	jump="Psychic_jump" 	dash="Psychic_dash" 	dive="Psychic_dive" 	/>
+    <StealthSet idle="Stealth_idle" 	forward="Stealth_forward" 	fall="Stealth_fall" 	jump="Stealth_jump" 	dash="Stealth_dash" 	dive="Stealth_dive" 	/>
+    <FighterSet idle="Fighter_idle" 	jump="Fighter_jump" 	/>
+	-->
+    <!--List of outside references-->
+    <Skeleton location="Animations/Skeleton.001.skeleton.xml" />   
+</Animations>

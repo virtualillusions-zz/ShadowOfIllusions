@@ -1,0 +1,15 @@
+**When placing empty's X defines the direction character is facing
+
+The Number displayed on the folder displays the number of players allowed on the Maps
+
+It is organized by player count so each have a fair amount of Cards spread throughout the scene
+
+3 cards per player so 
+
+2 player has 6 card spawn points
+
+3 player has 9 card spawn points 
+ 
+9 player has 27 card spawn points 
+
+and so on The amount of players on field should also affect the size of the field but is up to the level designer

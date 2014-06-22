@@ -1,0 +1,11 @@
+:::REMEMBER:::
+|When Exporting Go OgreMesh uncheck Skeleton nam follow Mesh or nothing will work
+
+::::::Vert Problems:::::::
+Before export in blender first change to weight paint mode of the model go to weight paint and use NormalizeVertexGroupWeightsForOgre
+
+
+::::::Animation Problems::::
+if when doing animations their is an odity go back to blender Apply Rotation Scale Data to ObjData
+
+
