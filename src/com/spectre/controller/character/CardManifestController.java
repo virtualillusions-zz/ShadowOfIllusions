@@ -14,59 +14,83 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.spectre.controller.character.impl.ActionControl;
 import com.spectre.deck.card.Card;
 import com.spectre.deck.controller.CardHandler;
 import java.io.IOException;
 import java.util.LinkedList;
 
-///**
-// * Esper Flair Identification Card
-// * TODO: SET UP THIS FIELD LOOK AT BOMBCONTROL FOR ASSISANCE IN jme3test.bullet;
-// * IDEA: Attack and Defense power independant of effects Effect attack only take effect after anim is completed defense and others take effect instantly
-// * TODO: when loading effects use bonePosition and then offset to get the proper position of the character
-// * Remember: remember the call in Skeleton Control getAttachmentsNode
-// * Remember: Search and replace all locations that calls Card
-// * @author Kyle Williams 
-//
-//
-//
-//LET IT BE KNOWN CARD MANIFEST CONTROLLER WILL BECOME ANIMATIONMANIFESTCONTROLLER AND WILL CONTROL ALL ANIMATION OF SPATIAL CHARACTERS
-//attached in SpectreCharacterController
-//should be attached in GameState
-// */
-public class CardManifestController extends AbstractControl implements Savable {
+/**
+ * Esper Flair Identification Card TODO: SET UP THIS FIELD LOOK AT BOMBCONTROL
+ * FOR ASSISANCE IN jme3test.bullet; IDEA: Attack and Defense power independant
+ * of effects Effect attack only take effect after anim is completed defense and
+ * others take effect instantly TODO: when loading effects use bonePosition and
+ * then offset to get the proper position of the character Remember: remember
+ * the call in Skeleton Control getAttachmentsNode Remember: Search and replace
+ * all locations that calls Card
+ *
+ *
+ * ANIMATION LOCK look into
+ *
+ *
+ * @author Kyle Williams LET IT BE KNOWN CARD MANIFEST CONTROLLER WILL BECOME
+ * ANIMATIONMANIFESTCONTROLLER AND WILL CONTROL ALL ANIMATION OF SPATIAL
+ * CHARACTERS attached in SpectreCharacterController should be attached in
+ * GameState
+ */
+public class CardManifestController extends AbstractControl implements ActionControl {
 
     private LinkedList<CardHandler> cardUpdateQueue;
-    private boolean isPlayingAnim = false;
+    private boolean lock = false;//prevents adding cards to the queue if true
 
     /**
-     * Activates a Card Object This Constructor adds a card to the queue if and
-     * only if a card Animation is not currently playing
+     * Activates a Card Object This function pushes a card onto the card queue
+     * if and only if its access is not currently locked
      *
      * @param card
      */
+    @Override
     public boolean addToActiveQueue(Card card) {
-        return false;
-//        if (isPlaying() == false) {
+//        if (isLocked() == false) {
 //            CardHandler cardNode = new CardHandler(card, getSpatial());
-//            cardUpdateQueue.add(cardNode);
+//            cardUpdateQueue.push(cardNode);//use push instead of add so feedback can find the card eaiser
 //            return true;
 //        }
-//        return false;
-    }
+        return true;
+    } 
 
+    /**
+     * Called when button depressed
+     *
+     * @param card
+     */
+    @Override
     public void feedBack(String card) {
-        //System.out.println(card+" feedback");
+        for (CardHandler c : cardUpdateQueue) {
+            if (c.getName().equals(card)) {
+                c.feedBack();
+                return;
+            }
+        }
     }
 
-    public void setPlayingAnim(boolean isPlaying) {
-        this.isPlayingAnim = isPlaying;
+    /**
+     * Checks to see if cardUpdateQueue is locked or free to add new cards
+     *
+     * @return lock
+     */
+    @Override
+    public boolean isLocked() {
+        return lock;
     }
 
-    public boolean isPlaying() {
-        return isPlayingAnim;
-    }
-
+    /**
+     * Checks to see if Card is already in Queue <br/><b>Their can be multiple
+     * instances</b>
+     *
+     * @param card
+     * @return
+     */
     public boolean contains(Card card) {
         for (CardHandler c : cardUpdateQueue) {
             if (c.compareCard(card)) {
@@ -76,6 +100,10 @@ public class CardManifestController extends AbstractControl implements Savable {
         return false;
     }
 
+    /**
+     * Permanently removes all cards from queue
+     */
+    @Override
     public void clearQueue() {
         for (CardHandler c : cardUpdateQueue) {
             c.destroy();
@@ -84,23 +112,20 @@ public class CardManifestController extends AbstractControl implements Savable {
     }
 
     /**
-     * *
-     * needs work only initial Checks for isPlayingAnim boolean if true other
-     * cards will not be allowed to enter the update queue until a uneventful
-     * update loop Checks for isDone if it is done then the card can be
-     * destroyed and removed from the update Queue;
+     * Updates the cards until removed from Queue <br/><b>Only Initial checks to
+     * lock which is intended.</b>
      *
-     * @param f
+     * @param tpf
      */
     @Override
     protected void controlUpdate(float tpf) {
-        isPlayingAnim = false;
+        lock = false;
 
         for (CardHandler cn : cardUpdateQueue) {
             if (cn.isDone() == false) {
                 cn.update(tpf);
                 if (cn.isAnimPlaying() == true) {
-                    isPlayingAnim = true;
+                    lock = true;
                 }
             } else {
                 cn.destroy();
@@ -114,6 +139,8 @@ public class CardManifestController extends AbstractControl implements Savable {
         super.setSpatial(spatial);
         if (cardUpdateQueue == null) {
             cardUpdateQueue = new LinkedList<CardHandler>();
+        } else {
+            clearQueue();
         }
     }
 
@@ -124,10 +151,10 @@ public class CardManifestController extends AbstractControl implements Savable {
     @Override
     public Control cloneForSpatial(Spatial sptl) {
         CardManifestController cont = new CardManifestController();
+        cont.setSpatial(sptl);
         cont.cardUpdateQueue.addAll(this.cardUpdateQueue);
         cont.setEnabled(enabled);
-        cont.setPlayingAnim(isPlayingAnim);
-        cont.setSpatial(sptl);
+        cont.lock = lock;
         return cont;
     }
 
@@ -136,7 +163,7 @@ public class CardManifestController extends AbstractControl implements Savable {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(enabled, "enabled", true);
-        oc.write(isPlayingAnim, "isPlayingAnim", false);
+        oc.write(lock, "isPlayingAnim", false);
         oc.write(spatial, "spatial", null);
         Savable[] savables = new Savable[cardUpdateQueue.size()];
         cardUpdateQueue.toArray(savables);
@@ -148,12 +175,21 @@ public class CardManifestController extends AbstractControl implements Savable {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         enabled = ic.readBoolean("enabled", true);
-        isPlayingAnim = ic.readBoolean("isPlayingAnim", false);
+        lock = ic.readBoolean("isPlayingAnim", false);
         spatial = (Spatial) ic.readSavable("spatial", null);
         Savable[] savables = (Savable[]) ic.readSavableArray("cardUpdateQueue", null);
         cardUpdateQueue = new LinkedList<CardHandler>();
         for (int i = 0; i > savables.length; i++) {
             cardUpdateQueue.add((CardHandler) savables[i]);
         }
+    }
+
+    public void startUp() {
+    }
+
+    public void cleanUp() {
+    }
+
+    public void ControlChanged() {
     }
 }

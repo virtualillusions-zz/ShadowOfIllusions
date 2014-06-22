@@ -20,6 +20,7 @@ import com.spectre.deck.card.Card;
 public class CardHandler implements AnimEventListener {
 
     private final Card card;
+    private final String name;
     private final Animation anim;
     private final EffectHandler passiveEffect,
             activeEffect,
@@ -36,6 +37,7 @@ public class CardHandler implements AnimEventListener {
 
     public CardHandler(Card c, Spatial spatial) {
         card = c;
+        name = c.getName();
         anim = card.getAnimation();
         spat = spatial;
         isDone = false;
@@ -50,10 +52,23 @@ public class CardHandler implements AnimEventListener {
         timer = 0;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Called when button depressed
+     *
+     * @param card
+     */
+    public void feedBack() {
+    }
+
     /**
      * Compare card with one within handler and returns true if valid
+     *
      * @param c
-     * @return 
+     * @return
      */
     public boolean compareCard(Card c) {
         return card.equals(c);
@@ -61,7 +76,8 @@ public class CardHandler implements AnimEventListener {
 
     private void animInit() {
         cardAnimPlaying = true;
-        sac.changeAnimation(anim.getAnimationName(), SpectreAnimationController.AnimPriority.CARD,LoopMode.DontLoop,anim.getSpeed(),anim.getStartTime());
+        //FIX ANIMCNTRL
+        //sac.changeAnimation(anim.getAnimationName(), SpectreAnimationController.AnimPriority.Level_2, LoopMode.DontLoop, anim.getSpeed(), anim.getStartTime());
         control.addListener(this);
     }
 
@@ -137,8 +153,10 @@ public class CardHandler implements AnimEventListener {
     }
 
     /**
-     * This method is used for the CardManifestController to determine if a new Card can be added to the controller update
-     * @param isPlaying 
+     * This method is used for the CardManifestController to determine if a new
+     * Card can be added to the controller update
+     *
+     * @param isPlaying
      */
     public boolean isAnimPlaying() {
         return cardAnimPlaying;

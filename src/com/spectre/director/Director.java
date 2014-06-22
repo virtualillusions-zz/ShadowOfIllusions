@@ -14,6 +14,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.spectre.controller.character.SpectreDuelController.SpectreCharacterAttributes;
@@ -36,6 +37,7 @@ import java.util.logging.Level;
  */
 public final class Director extends com.spectre.app.SpectreState implements Savable {
 
+    public static final float gravity = -9.81f * 10;
     private static AppStateManager stateManager;
     private static FilterSubDirector filterDirector;
     private static Application application;
@@ -60,6 +62,7 @@ public final class Director extends com.spectre.app.SpectreState implements Sava
                 physicsDirector = new BulletAppState();
                 physicsDirector.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
                 stateManager.attach(physicsDirector);
+                physicsDirector.getPhysicsSpace().setGravity(new Vector3f(0f, gravity, 0f));
             }
         }
     }

@@ -31,46 +31,14 @@ public class CardCharacteristics {
     public final static String NULL_CARD_REQUIREMENT = "";
 
     /**
-     * This is a list of all Card Series in the game It should be noted that
-     * Ryujin is special and instead of its ancestors being BOTH DragonPrime and
-     * Dragoon it is only Dragon
+     * This is a list of all supported Series in the game it should be noted
+     * that each has a subset of series most notable ones are Creationism and
+     * Matter Control
      */
     // <editor-fold defaultstate="collapsed" desc="Card Series">                          
     public enum CardSeries {
-//                Series 1             Series 2                                 Series 3                                         Series 4
-   /*Base*/ Raw(0),
-        /*Nature*/ Nature(1)/*, Muse(Nature, 2), Cleric(Muse, 3), BlueLight(Cleric, 4),
-         Dragon(Nature, 2), DragonPrime(Dragon, 3), Bahamut(DragonPrime,4),
-         Dragoon(Dragon, 3),Ryujin(Dragoon, 4),
-         NaturalDefender(Nature, 2),
-         /*Technology  Technology(1), Nanobot(Technology, 2), Hacker(Nanobot, 3), Virus(Hacker, 4),
-         Cybernetics(Technology, 2), CyberRaptor(Cybernetics, 3),
-         /*Phantom     Phantom(1), Necromancer(Phantom, 2), Devildom(Necromancer, 3), Satonic(Devildom, 4),
-         Shaman(Phantom, 2), Reaper(Shaman, 3),
-         /*Celestial   Celestial(1), Zodiac(Celestial, 2), Destiny(Zodiac, 3),
-         Astro(Celestial, 2), Devine(Astro, 3),
-         /*Aether      Creation(1),
-         MatterControl(1)*/;
 
-        private CardSeries(int s) {
-            prev = null;
-            seriesPos = s;
-        }
-
-        private CardSeries(CardSeries k, int s) {
-            prev = k;
-            seriesPos = s;
-        }
-
-        public CardSeries getAncestor() {
-            return prev == null ? Raw : prev;
-        }
-
-        public int getSeriesPosition() {
-            return seriesPos;
-        }
-        private final CardSeries prev;
-        private final int seriesPos;
+        RAW, NATURE, TECHNOLOGY, FAITH, CELESTIAL;
     }// </editor-fold> 
 
     /**
@@ -196,8 +164,8 @@ public class CardCharacteristics {
         SKILL_TYPE_EXTENDED(SkillTypeExtended.class),
         /**
          * The total amount of times this card can be used<br/> -1 stands for
-         * unlimited use please use CardCharacteristics.MAX_USE_INFINITE
-         * Range: 0 to 3
+         * unlimited use please use CardCharacteristics.MAX_USE_INFINITE Range:
+         * 0 to 3
          *
          */
         MAX_USE(0, 0, 3),
@@ -226,6 +194,11 @@ public class CardCharacteristics {
          * attacked)
          */
         AUTO_USE(Boolean.class),
+        /**
+         * Determines if the card can be performed in mid air<br> <b>This
+         * generally means on descent</b>
+         */
+        IN_AIR(Boolean.class),
         /**
          * Lunges the user either forward or backward by a specified amount
          */
@@ -288,13 +261,15 @@ public class CardCharacteristics {
          */
         HOLD_TO_POWER(Boolean.class),
         /**
-         * Area of Effect a widened area of effect upon contact
+         * Area of Effect a widened area of effect upon contact<br/> The radius
+         * of the A.O.E (blast radius)
          */
-        A_O_E(Boolean.class),
+        A_O_E_Radius(1, 1, 10),
         /**
-         * The radius of the A.O.E
+         * The length of time A.O.E. will be in effect, useful for lingering
+         * effects such as a poison cloud, or a prolonged mine explosion
          */
-        A_O_E_Radius(3, 1, 10),
+        A_O_E_Duration(1, 1, 30),
         /**
          * Makes the attack travel on ground
          */

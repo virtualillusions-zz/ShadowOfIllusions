@@ -4,9 +4,8 @@
  */
 package com.spectre.controller.character;
 
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
 import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.spectre.controller.character.impl.InputControl;
 import com.spectre.util.Buttons.ControlInputs;
 
 /**
@@ -15,7 +14,7 @@ import com.spectre.util.Buttons.ControlInputs;
  *
  * @author Kyle Williams
  */
-public class SpectreInputController extends AbstractSpectreController implements ActionListener, AnalogListener {
+public class SpectreInputController extends AbstractSpectreController implements InputControl {
 
     private boolean modiferButton = false;
 
@@ -35,21 +34,21 @@ public class SpectreInputController extends AbstractSpectreController implements
                 //isPressed card pressed/released
                 getEssenceCont().cardPressed(0, isPressed);
             } else if (isPressed == true) {
-                getPhysCont().Jump();
+                getPhysCont().jump();
             }
-        } else if (name.equals(getPlayerName() + ":" + ControlInputs.Action2)) {//CM: Perform/Remap Action 2 __ AM: Roll/Slide 
+        } else if (name.equals(getPlayerName() + ":" + ControlInputs.Action2)) {//CM: Perform/Remap Action 2 __ AM: evade/Slide 
             if (modiferButton == false) {
                 //isPressed card pressed/released
                 getEssenceCont().cardPressed(1, isPressed);
             } else if (isPressed == true) {
-                getPhysCont().Roll();
+                getPhysCont().evade();
             }
-        } else if (name.equals(getPlayerName() + ":" + ControlInputs.Action3)) {//CM: Perform/Remap Action 3 __ AM: Dash
+        } else if (name.equals(getPlayerName() + ":" + ControlInputs.Action3)) {//CM: Perform/Remap Action 3 __ AM: dash
             if (modiferButton == false) {
                 //isPressed card pressed/released
                 getEssenceCont().cardPressed(2, isPressed);
             } else if (isPressed == true) {
-                getPhysCont().Dash();
+                getPhysCont().dash();
             }
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.Action4)) {//CM: Perform/Remap Action 4 __ AM: Character's Auxillary
             if (modiferButton == false) {
@@ -71,7 +70,7 @@ public class SpectreInputController extends AbstractSpectreController implements
                 && isPressed == true) {
             getCameraCont().inputCenterCamera();
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.Alt)) {//CM: GatherFocus(whileStill) __ AM: Perform Special Maneuver
-            //***Perform Special Manuever is a augmented form of Jump, Roll/Slide or Dash. It can be used as in chain with these to perform a Double Jump Roll/Slide or Dash
+            //***Perform Special Manuever is a augmented form of Jump, evade/Slide or dash. It can be used as in chain with these to perform a Double Jump evade/Slide or dash
             if (modiferButton == false) {
                 getEssenceCont().gatherFocus(isPressed);
             } else if (isPressed == true) {
@@ -79,7 +78,7 @@ public class SpectreInputController extends AbstractSpectreController implements
             }
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.Mode)) {//CM: Hold: Enter Action Mode __ AM: Release: Enter Caster Mode  
             modiferButton = isPressed;
-            getPhysCont().setMod(modiferButton);
+            getPlayerCont().setActionMode(modiferButton);
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.Info1)) {//Show/Hide Explanation of Mapped Action 1
             getEssenceCont().cardInfo(1, isPressed);
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.Info2)) {//Show/Hide Explanation of Mapped Action 2
@@ -107,13 +106,13 @@ public class SpectreInputController extends AbstractSpectreController implements
             return;
         }
         if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterForward)) {//Move Character Up  
-            getPhysCont().moveCharacterUD(value / tpf);
+            getPhysCont().moveForward(value / tpf);
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterBack)) {//Move Character Back   
-            getPhysCont().moveCharacterUD(-value / tpf);
-        } else if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterRight)) {//Move Character  Right           
-            getPhysCont().moveCharacterLR(value / tpf);
-        } else if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterLeft)) {//Move Character Left
-            getPhysCont().moveCharacterLR(-value / tpf);
+            getPhysCont().moveForward(-(value / tpf));
+        } else if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterLeft)) {//Move Character  Right           
+            getPhysCont().moveLeft(value / tpf);
+        } else if (name.equals(getPlayerName() + ":" + ControlInputs.CharacterRight)) {//Move Character Left
+            getPhysCont().moveLeft(-(value / tpf));
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.CameraUp)) {//Rotate Camera Up
             getCameraCont().inputVRotateCamera(value);
         } else if (name.equals(getPlayerName() + ":" + ControlInputs.CameraDown)) {//Rotate Camera Down

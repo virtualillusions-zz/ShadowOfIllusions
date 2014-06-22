@@ -4,36 +4,30 @@
  */
 package com.spectre.controller.character.impl;
 
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
-import com.spectre.controller.character.SpectreAnimationController;
-import com.spectre.controller.character.SpectreCameraController;
-import com.spectre.controller.character.SpectreDuelController;
-import com.spectre.controller.character.SpectreInputController;
-import com.spectre.controller.character.SpectrePhysicsController;
 import com.spectre.controller.character.SpectrePlayerController;
 
 /**
  * An abstract AbstractControl implementation of the SpectreControl interface.
  * Used for character Management
  *
+ * Note: Since their will be different controls in place it seems better to find
+ * the control in spatial and return each time instead of save an instance
+ *
  * @author Kyle Williams
  */
 public abstract class AbstractSpectreController extends AbstractControl implements SpectreControl {
 
-    protected SpectreAnimationController sac;//set in SpectrePlayerController
-    protected SpectreDuelController sec;
-    protected SpectreInputController sic;//set in SpectrePlayerController
-    protected SpectrePhysicsController sphc;//pre-loaded
-    protected SpectrePlayerController spc;//Set or created by player
+    private SpectrePlayerController spc;
+    private CharControl sphc;//pre-loaded
+    private AnimationControl sac;
+    private ActionControl cmc;
+    private InputControl sic;
+    private CamControl scc;
+    private DuelControl sec;
     protected String playerName;
-    protected SpectreCameraController scc;//set in SpectrePlayerController
-    protected Camera cam;
-
-    public void startUp() {
-    }
 
     public void cleanUp() {
         sac = null;
@@ -43,7 +37,16 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
         spc = null;
         playerName = null;
         scc = null;
-        cam = null;
+    }
+
+    public void ControlChanged() {        
+        sac = null;
+        sec = null;
+        sic = null;
+        sphc = null;
+        spc = null;
+        playerName = null;
+        scc = null;
     }
 
     /**
@@ -51,9 +54,9 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
      *
      * @return CharacterAnimationController
      */
-    public SpectreAnimationController getAnimCont() {
+    public AnimationControl getAnimCont() {
         if (sac == null) {
-            sac = spatial.getControl(SpectreAnimationController.class);
+            sac = spatial.getControl(AnimationControl.class);
         }
         return sac;
     }
@@ -64,11 +67,23 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
      *
      * @return SpectreEssenceController
      */
-    public SpectreDuelController getEssenceCont() {
+    public DuelControl getEssenceCont() {
         if (sec == null) {
-            sec = spatial.getControl(SpectreDuelController.class);
+            sec = spatial.getControl(DuelControl.class);
         }
         return sec;
+    }
+
+    /**
+     * A class that handles Card implementation
+     *
+     * @return
+     */
+    public ActionControl getManifestCont() {
+        if (cmc == null) {
+            cmc = spatial.getControl(ActionControl.class);
+        }
+        return cmc;
     }
 
     /**
@@ -76,9 +91,9 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
      *
      * @return inputHandler
      */
-    public SpectreInputController getInputCont() {
+    public InputControl getInputCont() {
         if (sic == null) {
-            sic = spatial.getControl(SpectreInputController.class);
+            sic = spatial.getControl(InputControl.class);
         }
         return sic;
     }
@@ -88,9 +103,9 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
      *
      * @return spatial
      */
-    public SpectrePhysicsController getPhysCont() {
+    public CharControl getPhysCont() {
         if (sphc == null) {
-            sphc = spatial.getControl(SpectrePhysicsController.class);
+            sphc = spatial.getControl(CharControl.class);
         }
         return sphc;
     }
@@ -114,23 +129,11 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
         return playerName;
     }
 
-    public SpectreCameraController getCameraCont() {
+    public CamControl getCameraCont() {
         if (scc == null) {
-            scc = spatial.getControl(SpectreCameraController.class);
+            scc = spatial.getControl(CamControl.class);
         }
         return scc;
-    }
-
-    /**
-     * TODO: CREATE DESTROYABLE CAMERAS TO GIVE AWAY FOR PLAYERCONTROLLER
-     *
-     * @param tpf
-     */
-    public Camera getCamera() {
-        if (cam == null) {
-            cam = spatial.getControl(SpectreCameraController.class).getCamera();
-        }
-        return cam;
     }
 
     @Override
@@ -139,5 +142,8 @@ public abstract class AbstractSpectreController extends AbstractControl implemen
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+    }
+
+    public void startUp() {
     }
 }

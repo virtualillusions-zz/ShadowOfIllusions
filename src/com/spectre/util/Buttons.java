@@ -186,7 +186,7 @@ public class Buttons {
 
         }
 
-        private String getID() {
+        public String getID() {
             return i;
         }
     }

@@ -8,8 +8,12 @@ import com.jme3.app.Application;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.PhysicsCollisionListener;
+import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.MeshCollisionShape;
+import com.jme3.bullet.control.GhostControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -17,6 +21,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -32,8 +37,25 @@ import com.spectre.director.Director;
  */
 public class PhysicsTestHelper {
 
+    public static void createPhysicsGhostObject(Node rootNode, Vector3f location, PhysicsSpace space) {
+        Vector3f halfExtents = new Vector3f(1, 1, 1);
+        final GhostControl ghostControl = new GhostControl(new BoxCollisionShape(halfExtents));
+        Node node = new Node("Ghost Object");
+        node.addControl(ghostControl);
+        node.setLocalTranslation(location);
+        rootNode.attachChild(node);
+        space.add(ghostControl);
+        space.addCollisionListener(new PhysicsCollisionListener() {
+            public void collision(PhysicsCollisionEvent event) {
+                System.out.println("Collided with Debug GhostObject[" + ghostControl.getOverlappingObjects().size() + "]");
+            }
+        });
+    }
+
     /**
-     * creates a simple physics test world with a floor, an obstacle and some test boxes
+     * creates a simple physics test world with a floor, an obstacle and some
+     * test boxes
+     *
      * @param rootNode
      * @param assetManager
      * @param space
@@ -46,8 +68,8 @@ public class PhysicsTestHelper {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
         //material.setColor("Color", ColorRGBA.Blue);   // set color of material to blue
-        
-        Box floorBox = new Box(140,  1, 140);//0.25f, 140);
+
+        Box floorBox = new Box(140, 1, 140);//0.25f, 140);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
         floorGeometry.setMaterial(material);
         floorGeometry.setLocalTranslation(0, -5, 0);
@@ -80,7 +102,7 @@ public class PhysicsTestHelper {
         space.add(sphereGeometry);
 
     }
-    
+
     public static void createPhysicsTestWorldSoccer(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
         AmbientLight light = new AmbientLight();
         light.setColor(ColorRGBA.LightGray);
@@ -89,21 +111,23 @@ public class PhysicsTestHelper {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("testData/Monkey.jpg"));
 
-        Box floorBox = new Box(140,  1, 140);//0.25f, 140);
+        Box floorBox = new Box(140, 1, 140);//0.25f, 140);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
         floorGeometry.setMaterial(material);
         floorGeometry.setLocalTranslation(0, -1f, 0);//-0.25f, 0);
 //        Plane plane = new Plane();
 //        plane.setOriginNormal(new Vector3f(0, 0.25f, 0), Vector3f.UNIT_Y);
 //        floorGeometry.addControl(new RigidBodyControl(new PlaneCollisionShape(plane), 0));
-        floorGeometry.addControl(new RigidBodyControl(0));
+        RigidBodyControl rbc = new RigidBodyControl(new MeshCollisionShape(floorBox), 0);
+        floorGeometry.addControl(rbc);
         rootNode.attachChild(floorGeometry);
         space.add(floorGeometry);
+
 
         //movable spheres
         for (int i = 0; i < 5; i++) {
             Sphere sphere = new Sphere(16, 16, .5f);
-            Geometry ballGeometry = new Geometry("Soccer ball "+i, sphere);
+            Geometry ballGeometry = new Geometry("Soccer ball " + i, sphere);
             ballGeometry.setMaterial(material);
             ballGeometry.setLocalTranslation(i, 2, -3);
             //RigidBodyControl automatically uses Sphere collision shapes when attached to single geometry with sphere mesh
@@ -128,6 +152,7 @@ public class PhysicsTestHelper {
 
     /**
      * creates a box geometry with a RigidBodyControl
+     *
      * @param assetManager
      * @return
      */
@@ -144,6 +169,7 @@ public class PhysicsTestHelper {
 
     /**
      * creates a sphere geometry with a RigidBodyControl
+     *
      * @param assetManager
      * @return
      */
@@ -160,6 +186,7 @@ public class PhysicsTestHelper {
 
     /**
      * creates an empty node with a RigidBodyControl
+     *
      * @param manager
      * @param shape
      * @param mass
@@ -173,14 +200,15 @@ public class PhysicsTestHelper {
     }
 
     /**
-     * creates the necessary inputlistener and action to shoot balls from teh camera
+     * creates the necessary inputlistener and action to shoot balls from teh
+     * camera
+     *
      * @param app
      * @param rootNode
      * @param space
      */
     public static void createBallShooter(final Application app, final Node rootNode, final PhysicsSpace space) {
         ActionListener actionListener = new ActionListener() {
-
             public void onAction(String name, boolean keyPressed, float tpf) {
                 Sphere bullet = new Sphere(32, 32, 0.4f, true, false);
                 bullet.setTextureMode(TextureMode.Projected);
@@ -206,12 +234,35 @@ public class PhysicsTestHelper {
         app.getInputManager().addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         app.getInputManager().addListener(actionListener, "shoot");
     }
-    
-    
-    
-    
+
+    public static void createPhysicsTown(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
+        AmbientLight light = new AmbientLight();
+        light.setColor(ColorRGBA.LightGray);
+        rootNode.addLight(light);
+        Node floorGeometry = (Node) assetManager.loadModel("testData/town/main.scene");
+        floorGeometry.setLocalTranslation(0, -5, 0);
+        floorGeometry.scale(3f);
+        floorGeometry.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(floorGeometry);
+        space.add(floorGeometry);
+    }
+
+    public static void createPhysicsWildHouse(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
+        AmbientLight light = new AmbientLight();
+        light.setColor(ColorRGBA.LightGray);
+        rootNode.addLight(light);
+        Node floorGeometry = (Node) assetManager.loadModel("testData/wildhouse/main.scene");
+        floorGeometry.setLocalTranslation(0, -5, 0);
+        floorGeometry.scale(3f);
+        floorGeometry.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(floorGeometry);
+        space.add(floorGeometry);
+    }
+
     /**
-     * creates a simple physics test world with a floor, an obstacle and some test boxes
+     * creates a simple physics test world with a floor, an obstacle and some
+     * test boxes
+     *
      * @param rootNode
      * @param assetManager
      * @param space

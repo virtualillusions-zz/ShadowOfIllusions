@@ -10,11 +10,12 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.input.InputManager;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.spectre.app.SpectreApplication;
-import com.spectre.controller.character.gui.CardGUIController;
-import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.spectre.controller.character.impl.ActionModeControl;
 import com.spectre.controller.character.impl.SpectreControl;
 import com.spectre.deck.RepositoryDeck;
 import com.spectre.director.Director;
@@ -23,15 +24,25 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 /**
- * This Controller is used to handle all player information
+ * This Controller is used to handle all player information TODO needs to be
+ * updated to call interface controls instead of it directly
  *
  * @author Kyle Williams
  */
-public class SpectrePlayerController extends AbstractSpectreController implements Savable {
+public class SpectrePlayerController implements SpectreControl, ActionModeControl, Savable {
 
     /*This is to keep track of players highest total Score*/
     private int playerhighScore = 0;
     private RepositoryDeck repo;
+    protected boolean enabled = true;
+    protected Spatial spatial;
+    private SpectreAnimationController sac;
+    private SpectreDuelController sec;
+    private SpectreInputController sic;
+    private SpectrePhysicsController sphc;
+    private SpectreCameraController scc;
+    private CardManifestController cmc;
+    protected String playerName;
 
     /**
      * The Highest Score the player has
@@ -64,7 +75,6 @@ public class SpectrePlayerController extends AbstractSpectreController implement
     /**
      * @return name The name of this player
      */
-    @Override
     public String getPlayerName() {
         return playerName;
     }
@@ -77,7 +87,7 @@ public class SpectrePlayerController extends AbstractSpectreController implement
      * Adds The player to the scene-graph and physical world
      */
     public SpectrePlayerController addIntoPlay() {
-        Director.getModelNode().attachChild(getModel());
+        Director.getModelNode().attachChild(getSpatial());
 
         enableInput(true);
 
@@ -89,12 +99,14 @@ public class SpectrePlayerController extends AbstractSpectreController implement
     /**
      * removes the player from the scene-graph and physical world
      */
-    public void removeFromPlay() {
-        Director.getModelNode().detachChild(getModel());
+    public SpectrePlayerController removeFromPlay() {
+        Director.getModelNode().detachChild(getSpatial());
 
         enableInput(false);
 
         setSpectreControllers(false);
+
+        return this;
     }
 
     /**
@@ -102,9 +114,9 @@ public class SpectrePlayerController extends AbstractSpectreController implement
      *
      * @param isStartUp
      */
-    public void setSpectreControllers(boolean isStartUp) {
-        for (int i = 0; i < getModel().getNumControls(); i++) {
-            Control cont = getModel().getControl(i);
+    private void setSpectreControllers(boolean isStartUp) {
+        for (int i = 0; i < getSpatial().getNumControls(); i++) {
+            Control cont = getSpatial().getControl(i);
             if (cont != this && cont instanceof SpectreControl) {
                 if (isStartUp == true) {
                     ((SpectreControl) cont).startUp();
@@ -135,6 +147,8 @@ public class SpectrePlayerController extends AbstractSpectreController implement
         spat.addControl(getCameraCont());//gamestate
         spat.addControl(getAnimCont());//character
         spat.addControl(getInputCont());
+        spat.addControl(getEssenceCont());
+        spat.addControl(getManifestCont());
         return this;
     }
 
@@ -144,6 +158,8 @@ public class SpectrePlayerController extends AbstractSpectreController implement
      * @param spatial
      */
     public void removeModel() {
+        spatial.removeControl(getManifestCont());
+        spatial.removeControl(getEssenceCont());
         spatial.removeControl(getInputCont());
         spatial.removeControl(getAnimCont());
         spatial.removeControl(getCameraCont());
@@ -157,12 +173,22 @@ public class SpectrePlayerController extends AbstractSpectreController implement
      *
      * @return spatial
      */
-    public Spatial getModel() {
+    public Spatial getSpatial() {
         if (spatial == null) {
             com.spectre.app.SpectreApplication.logger.severe("This Player does not have control of a character");
             return null;
         }
         return spatial;
+    }
+
+    public void setActionMode(boolean modiferButton) {
+        for (int i = 0; i < getSpatial().getNumControls(); i++) {
+            Control cont = getSpatial().getControl(i);
+            if (cont != this && cont instanceof ActionModeControl) {
+                ((ActionModeControl) cont).setActionMode(modiferButton);
+
+            }
+        }
     }
 
     public void enableInput(boolean enabled) {
@@ -178,17 +204,20 @@ public class SpectrePlayerController extends AbstractSpectreController implement
         }
     }
 
-    /**
-     * A class that handles the GUI of the cards shown in front of the player
-     * Set in GameState
-     *
-     * @return CardGUI
-     */
-    public CardGUIController getCardGUI() {
-        return spatial.getControl(CardGUIController.class);
+    public CardManifestController getManifestCont() {
+        if (cmc == null) {
+            cmc = new CardManifestController();
+        }
+        return cmc;
     }
 
-    @Override
+    public SpectreDuelController getEssenceCont() {
+        if (sec == null) {
+            sec = new SpectreDuelController();
+        }
+        return sec;
+    }
+
     public SpectreAnimationController getAnimCont() {
         if (sac == null) {
             sac = new SpectreAnimationController();
@@ -196,7 +225,6 @@ public class SpectrePlayerController extends AbstractSpectreController implement
         return sac;
     }
 
-    @Override
     public SpectreInputController getInputCont() {
         if (sic == null) {
             sic = new SpectreInputController();
@@ -204,7 +232,6 @@ public class SpectrePlayerController extends AbstractSpectreController implement
         return sic;
     }
 
-    @Override
     public SpectreCameraController getCameraCont() {
         if (scc == null) {
             scc = new SpectreCameraController();
@@ -212,25 +239,17 @@ public class SpectrePlayerController extends AbstractSpectreController implement
         return scc;
     }
 
+    public void ControlChanged() {
+        sac = null;
+        sec = null;
+        sic = null;
+        scc = null;
+        cmc = null;
+    }
+
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        return null;//AT NO TIME SHOULD THIS CONTROLLER BE CLONED IT IS UNIQUE TO EACH USER
-    }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(playerName, "name", null);
-        oc.write(playerhighScore, "playerhighScore", 0);
-        oc.write(repo, "repo", new RepositoryDeck());
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        playerName = ic.readString("name", null);
-        playerhighScore = ic.readInt("playerhighScore", 0);
-        repo = (RepositoryDeck) ic.readSavable("repo", new RepositoryDeck());
+        throw new UnsupportedOperationException("/AT NO TIME SHOULD THIS CONTROLLER BE CLONED IT IS UNIQUE TO EACH USER");
     }
 
     @Override
@@ -241,5 +260,46 @@ public class SpectrePlayerController extends AbstractSpectreController implement
     @Override
     public void cleanUp() {
         SpectreApplication.logger.log(Level.INFO, "Removing {0} to the field", playerName);
+    }
+
+    public void setSpatial(Spatial spatial) {
+        if (this.spatial != null && spatial != null && spatial != this.spatial) {
+            throw new IllegalStateException("This control has already been added to a Spatial");
+        }
+        this.spatial = spatial;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void update(float tpf) {
+    }
+
+    public void render(RenderManager rm, ViewPort vp) {
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(enabled, "enabled", true);
+        oc.write(spatial, "spatial", null);
+        oc.write(playerName, "name", null);
+        oc.write(playerhighScore, "playerhighScore", 0);
+        oc.write(repo, "repo", new RepositoryDeck());
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        enabled = ic.readBoolean("enabled", true);
+        spatial = (Spatial) ic.readSavable("spatial", null);
+        playerName = ic.readString("name", null);
+        playerhighScore = ic.readInt("playerhighScore", 0);
+        repo = (RepositoryDeck) ic.readSavable("repo", new RepositoryDeck());
     }
 }

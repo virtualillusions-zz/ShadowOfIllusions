@@ -23,7 +23,7 @@ public class ImporterExporterTest {
     public ImporterExporterTest() {
         SupplyDeck sD = new SupplyDeck();
         for (int i = 0; i < 5; i++) {
-            sD.put(AbstractCard.createNewCard("Card: " + i, CardSeries.Nature));
+            sD.put(AbstractCard.createNewCard("Card: " + i, CardSeries.NATURE));
         }
 
         long startTime = System.nanoTime();

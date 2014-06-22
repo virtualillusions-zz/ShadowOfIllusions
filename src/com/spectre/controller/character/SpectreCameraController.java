@@ -31,6 +31,7 @@
  */
 package com.spectre.controller.character;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
 import com.jme3.input.FlyByCamera;
@@ -39,12 +40,16 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Camera.FrustumIntersect;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
-import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.jme3.util.TempVars;
+import com.spectre.controller.character.impl.CamControl;
 import com.spectre.director.Director;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This Camera is a spatial Controller used to give players view into the world.
@@ -56,7 +61,7 @@ import java.util.LinkedList;
  * @author Kyle Williams [MODIFIED FROM com.jme3.input.ChaseCamera by
  * @author nehon ]
  */
-public class SpectreCameraController extends AbstractSpectreController {
+public class SpectreCameraController extends AbstractControl implements CamControl {
 
     /**
      * A Character Control Used to handle Character Camera
@@ -72,17 +77,9 @@ public class SpectreCameraController extends AbstractSpectreController {
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
-        //computePosition();
+        heightOffset = ((BoundingBox) spatial.getWorldBound()).getYExtent();
         prevPos = new Vector3f(spatial.getWorldTranslation());
-        //cam.setLocation(pos);
-        //
-        setMaxVerticalRotation(FastMath.PI / 3.5f);
-        setMinVerticalRotation(-FastMath.PI / 4f);
         inputCenterCamera();
-        setMinDistance(6.0f);
-        setMaxDistance(12.0f);
-        setDefaultDistance(getMaxDistance());//Forces the Camera to a specific distance
-        //computePosition();
     }
 
     @Override
@@ -111,7 +108,7 @@ public class SpectreCameraController extends AbstractSpectreController {
             setDefaultHorizontalRotation(t);
             float min = getMinVerticalRotation();
             float max = getMaxVerticalRotation();
-            t = FastMath.clamp(angles[0], min, max);
+            t = FastMath.clamp(-angles[0], min, max);
             setDefaultVerticalRotation(t);
         }
 
@@ -126,23 +123,30 @@ public class SpectreCameraController extends AbstractSpectreController {
      * Collisions calculations to prevent character from being obscured
      */
     private void collide() {
+        TempVars vars = TempVars.get();
         //compute position
         float hDistance = (targetDistance) * FastMath.sin((FastMath.PI / 2) - vRotation);
-        maxPos = new Vector3f(hDistance * FastMath.cos(rotation), (targetDistance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
-        maxPos = maxPos.add(spatial.getWorldTranslation());
+        Vector3f maxPos = vars.vect1;
+        maxPos.set(hDistance * FastMath.cos(rotation), (targetDistance) * FastMath.sin(vRotation), hDistance * FastMath.sin(rotation));
+        maxPos.addLocal(spatial.getWorldTranslation());
+        maxPos.addLocal(0, heightOffset, 0);
         //collide
         if (pSpace == null) {
             pSpace = Director.getPhysicsSpace();
             zoomCamera(getMaxDistance());
         }
-        //Makes sure physicsSpace is set and when it is set and zooms the camera out
+        //Makes sure physicsSpace is set and when it is set and zooms the camera out  
+        Vector3f minPos = vars.vect2;
+        minPos.set(spatial.getWorldTranslation());
+        minPos.addLocal(0, heightOffset, 0);
         @SuppressWarnings("unchecked")
-        LinkedList<PhysicsRayTestResult> testResults = (LinkedList) pSpace.rayTest(spatial.getWorldTranslation(), maxPos);
+        List<PhysicsRayTestResult> testResults = pSpace.rayTest(minPos, maxPos);
         float hf = 1f;//hitFraction
         if (testResults != null && testResults.size() > 0) {
-            hf = testResults.getFirst().getHitFraction();
+            hf = testResults.get(0).getHitFraction();//try the very last in list
         }
         targetDistance = hf * targetDistance;//((float)((int)(hf*100)))/100 * targetDistance;
+        vars.release();
     }
 
     /**
@@ -150,6 +154,7 @@ public class SpectreCameraController extends AbstractSpectreController {
      *
      * @param value DO NOT AUGMENT VALUE WITH TPF
      */
+    @Override
     public void inputHRotateCamera(float value) {
         if (lockOn == true) {
             return;
@@ -167,6 +172,7 @@ public class SpectreCameraController extends AbstractSpectreController {
      *
      * @param value DO NOT AUGMENT VALUE WITH TPF
      */
+    @Override
     public void inputVRotateCamera(float value) {
         if (lockOn == true) {
             return;
@@ -215,6 +221,7 @@ public class SpectreCameraController extends AbstractSpectreController {
     /**
      * Centers the Camera squarely behind target spatial
      */
+    @Override
     public void inputCenterCamera() {
         lockOn = false;
         float[] angles = new float[3];
@@ -229,10 +236,12 @@ public class SpectreCameraController extends AbstractSpectreController {
      * Locks onto closest Target in view of camera or if none closest target to
      * player
      */
+    @Override
     public void inputToggleLockOnTarget() {
         if (lockOn == true) {
             lockOn = false;
             lockOnTarget = null;
+            
         } else {
             getLookAtTarget(true);
             if (lockOnTarget != null) {
@@ -246,6 +255,7 @@ public class SpectreCameraController extends AbstractSpectreController {
      *
      * @param next
      */
+    @Override
     public void inputToggleLockOnTarget(boolean next) {
         if (lockOnTarget == null) {
             getLookAtTarget(false);
@@ -341,150 +351,155 @@ public class SpectreCameraController extends AbstractSpectreController {
      * @param tpf
      */
     @Override
-    public void update(float tpf) {
-        if (enabled) {
+    public void controlUpdate(float tpf) {
+        targetLocation.set(spatial.getWorldTranslation()).addLocal(lookAtOffset);
 
-            targetLocation.set(spatial.getWorldTranslation()).addLocal(lookAtOffset);
+        if (smoothMotion) {
 
-            if (smoothMotion) {
+            //computation of target direction
+            targetDir.set(targetLocation).subtractLocal(prevPos);
+            float dist = targetDir.length();
 
-                //computation of target direction
-                targetDir.set(targetLocation).subtractLocal(prevPos);
-                float dist = targetDir.length();
-
-                //Low pass filtering on the target postition to avoid shaking when physics are enabled.
-                if (offsetDistance < dist) {
-                    //target moves, start chasing.
-                    chasing = true;
-                    //target moves, start trailing if it has to.
-                    if (trailingEnabled) {
-                        trailing = true;
-                    }
-                    //target moves...
-                    targetMoves = true;
-                } else {
-                    //if target was moving, we compute a slight offset in rotation to avoid a rought stop of the cam
-                    //We do not if the player is rotationg the cam
-                    if (targetMoves && !canRotate) {
-                        if (targetRotation - rotation > trailingRotationInertia) {
-                            targetRotation = rotation + trailingRotationInertia;
-                        } else if (targetRotation - rotation < -trailingRotationInertia) {
-                            targetRotation = rotation - trailingRotationInertia;
-                        }
-                    }
-                    //Target stops
-                    targetMoves = false;
+            //Low pass filtering on the target postition to avoid shaking when physics are enabled.
+            if (offsetDistance < dist) {
+                //target moves, start chasing.
+                chasing = true;
+                //target moves, start trailing if it has to.
+                if (trailingEnabled) {
+                    trailing = true;
                 }
-
-                //the user is rotating the cam by dragging the mouse
-                if (canRotate) {
-                    //reseting the trailing lerp factor
-                    trailingLerpFactor = 0;
-                    //stop trailing user has the control
-                    trailing = false;
-                }
-
-
-                if (trailingEnabled && trailing) {
-                    if (targetMoves) {
-                        //computation if the inverted direction of the target
-                        Vector3f a = targetDir.negate().normalizeLocal();
-                        //the x unit vector
-                        Vector3f b = Vector3f.UNIT_X;
-                        //2d is good enough
-                        a.y = 0;
-                        //computation of the rotation angle between the x axis and the trail
-                        if (targetDir.z > 0) {
-                            targetRotation = FastMath.TWO_PI - FastMath.acos(a.dot(b));
-                        } else {
-                            targetRotation = FastMath.acos(a.dot(b));
-                        }
-                        if (targetRotation - rotation > FastMath.PI || targetRotation - rotation < -FastMath.PI) {
-                            targetRotation -= FastMath.TWO_PI;
-                        }
-
-                        //if there is an important change in the direction while trailing reset of the lerp factor to avoid jumpy movements
-                        if (targetRotation != previousTargetRotation && FastMath.abs(targetRotation - previousTargetRotation) > FastMath.PI / 8) {
-                            trailingLerpFactor = 0;
-                        }
-                        previousTargetRotation = targetRotation;
-                    }
-                    //computing lerp factor
-                    trailingLerpFactor = Math.min(trailingLerpFactor + tpf * tpf * trailingSensitivity, 1);
-                    //computing rotation by linear interpolation
-                    rotation = FastMath.interpolateLinear(trailingLerpFactor, rotation, targetRotation);
-
-                    //if the rotation is near the target rotation we're good, that's over
-                    if (targetRotation + 0.01f >= rotation && targetRotation - 0.01f <= rotation) {
-                        trailing = false;
-                        trailingLerpFactor = 0;
-                    }
-                }
-
-                //linear interpolation of the distance while chasing
-                if (chasing) {
-                    distance = temp.set(targetLocation).subtractLocal(cam.getLocation()).length();
-                    distanceLerpFactor = Math.min(distanceLerpFactor + (tpf * tpf * chasingSensitivity * 0.05f), 1);
-                    distance = FastMath.interpolateLinear(distanceLerpFactor, distance, targetDistance);
-                    if (targetDistance + 0.01f >= distance && targetDistance - 0.01f <= distance) {
-                        distanceLerpFactor = 0;
-                        chasing = false;
-                    }
-                }
-
-                //linear interpolation of the distance while zooming
-                if (zooming) {
-                    distanceLerpFactor = Math.min(distanceLerpFactor + (tpf * tpf * zoomSensitivity), 1);
-                    distance = FastMath.interpolateLinear(distanceLerpFactor, distance, targetDistance);
-                    if (targetDistance + 0.1f >= distance && targetDistance - 0.1f <= distance) {
-                        zooming = false;
-                        distanceLerpFactor = 0;
-                    }
-                }
-
-                //linear interpolation of the rotation while rotating horizontally
-                if (rotating) {
-                    rotationLerpFactor = Math.min(rotationLerpFactor + tpf * tpf * rotationSensitivity, 1);
-                    rotation = FastMath.interpolateLinear(rotationLerpFactor, rotation, targetRotation);
-                    if (targetRotation + 0.01f >= rotation && targetRotation - 0.01f <= rotation) {
-                        rotating = false;
-                        rotationLerpFactor = 0;
-                    }
-                }
-
-                //linear interpolation of the rotation while rotating vertically
-                if (vRotating) {
-                    vRotationLerpFactor = Math.min(vRotationLerpFactor + tpf * tpf * rotationSensitivity, 1);
-                    vRotation = FastMath.interpolateLinear(vRotationLerpFactor, vRotation, targetVRotation);
-                    if (targetVRotation + 0.01f >= vRotation && targetVRotation - 0.01f <= vRotation) {
-                        vRotating = false;
-                        vRotationLerpFactor = 0;
-                    }
-                }
-                //computing the position
-                computePosition();
-                //setting the position at last
-                cam.setLocation(pos.addLocal(lookAtOffset));
+                //target moves...
+                targetMoves = true;
             } else {
-                //easy no smooth motion
-                vRotation = targetVRotation;
-                rotation = targetRotation;
-                distance = targetDistance;
-                computePosition();
-                cam.setLocation(pos.addLocal(lookAtOffset));
+                //if target was moving, we compute a slight offset in rotation to avoid a rought stop of the cam
+                //We do not if the player is rotationg the cam
+                if (targetMoves && !canRotate) {
+                    if (targetRotation - rotation > trailingRotationInertia) {
+                        targetRotation = rotation + trailingRotationInertia;
+                    } else if (targetRotation - rotation < -trailingRotationInertia) {
+                        targetRotation = rotation - trailingRotationInertia;
+                    }
+                }
+                //Target stops
+                targetMoves = false;
+            }
+
+            //the user is rotating the cam by dragging the mouse
+            if (canRotate) {
+                //reseting the trailing lerp factor
+                trailingLerpFactor = 0;
+                //stop trailing user has the control
+                trailing = false;
             }
 
 
-            Spatial s = lockOn == true ? lockOnTarget : spatial;
-            targetLocation.set(s.getWorldTranslation()).addLocal(lookAtOffset);
+            if (trailingEnabled && trailing) {
+                if (targetMoves) {
+                    //computation if the inverted direction of the target
+                    Vector3f a = targetDir.negate().normalizeLocal();
+                    //the x unit vector
+                    Vector3f b = Vector3f.UNIT_X;
+                    //2d is good enough
+                    a.y = 0;
+                    //computation of the rotation angle between the x axis and the trail
+                    if (targetDir.z > 0) {
+                        targetRotation = FastMath.TWO_PI - FastMath.acos(a.dot(b));
+                    } else {
+                        targetRotation = FastMath.acos(a.dot(b));
+                    }
+                    if (targetRotation - rotation > FastMath.PI || targetRotation - rotation < -FastMath.PI) {
+                        targetRotation -= FastMath.TWO_PI;
+                    }
 
-            //keeping track on the previous position of the target
-            prevPos.set(targetLocation);
+                    //if there is an important change in the direction while trailing reset of the lerp factor to avoid jumpy movements
+                    if (targetRotation != previousTargetRotation && FastMath.abs(targetRotation - previousTargetRotation) > FastMath.PI / 8) {
+                        trailingLerpFactor = 0;
+                    }
+                    previousTargetRotation = targetRotation;
+                }
+                //computing lerp factor
+                trailingLerpFactor = Math.min(trailingLerpFactor + tpf * tpf * trailingSensitivity, 1);
+                //computing rotation by linear interpolation
+                rotation = FastMath.interpolateLinear(trailingLerpFactor, rotation, targetRotation);
 
-            //the cam looks at the target
-            cam.lookAt(targetLocation, initialUpVec);
+                //if the rotation is near the target rotation we're good, that's over
+                if (targetRotation + 0.01f >= rotation && targetRotation - 0.01f <= rotation) {
+                    trailing = false;
+                    trailingLerpFactor = 0;
+                }
+            }
 
+            //linear interpolation of the distance while chasing
+            if (chasing) {
+                distance = temp.set(targetLocation).subtractLocal(cam.getLocation()).length();
+                distanceLerpFactor = Math.min(distanceLerpFactor + (tpf * tpf * chasingSensitivity * 0.05f), 1);
+                distance = FastMath.interpolateLinear(distanceLerpFactor, distance, targetDistance);
+                if (targetDistance + 0.01f >= distance && targetDistance - 0.01f <= distance) {
+                    distanceLerpFactor = 0;
+                    chasing = false;
+                }
+            }
+
+            //linear interpolation of the distance while zooming
+            if (zooming) {
+                distanceLerpFactor = Math.min(distanceLerpFactor + (tpf * tpf * zoomSensitivity), 1);
+                distance = FastMath.interpolateLinear(distanceLerpFactor, distance, targetDistance);
+                if (targetDistance + 0.1f >= distance && targetDistance - 0.1f <= distance) {
+                    zooming = false;
+                    distanceLerpFactor = 0;
+                }
+            }
+
+            //linear interpolation of the rotation while rotating horizontally
+            if (rotating) {
+                rotationLerpFactor = Math.min(rotationLerpFactor + tpf * tpf * rotationSensitivity, 1);
+                rotation = FastMath.interpolateLinear(rotationLerpFactor, rotation, targetRotation);
+                if (targetRotation + 0.01f >= rotation && targetRotation - 0.01f <= rotation) {
+                    rotating = false;
+                    rotationLerpFactor = 0;
+                }
+            }
+
+            //linear interpolation of the rotation while rotating vertically
+            if (vRotating) {
+                vRotationLerpFactor = Math.min(vRotationLerpFactor + tpf * tpf * rotationSensitivity, 1);
+                vRotation = FastMath.interpolateLinear(vRotationLerpFactor, vRotation, targetVRotation);
+                if (targetVRotation + 0.01f >= vRotation && targetVRotation - 0.01f <= vRotation) {
+                    vRotating = false;
+                    vRotationLerpFactor = 0;
+                }
+            }
+            //computing the position
+            computePosition();
+            //setting the position at last moved outside to prevent redundancy
+        } else {
+            //easy no smooth motion
+            vRotation = targetVRotation;
+            rotation = targetRotation;
+            distance = targetDistance;
+            //computing the position
+            computePosition();
+            //setting the position at last moved outside to prevent redundancy
         }
+        //calculate cameras definite position once
+        if (lockOn == true) {
+             //Grants perferable lockon angle by altering location of camera
+            cam.setLocation(pos.addLocal(lookAtOffset).addLocal(0, heightOffset * 2, 0));
+        } else {
+            cam.setLocation(pos.addLocal(lookAtOffset));
+        }
+
+        Spatial s = lockOn == true ? lockOnTarget : spatial;
+        targetLocation.set(s.getWorldTranslation()).addLocal(lookAtOffset);
+
+        //fixes geometry base being at bottom of character as required
+        targetLocation.addLocal(0, heightOffset, 0);
+
+        //keeping track on the previous position of the target
+        prevPos.set(targetLocation);
+
+        //the cam looks at the target
+        cam.lookAt(targetLocation, initialUpVec);
     }
 
     /**
@@ -863,6 +878,11 @@ public class SpectreCameraController extends AbstractSpectreController {
         return initialUpVec;
     }
 
+    /**
+     * Currently assigned camera
+     *
+     * @return
+     */
     @Override
     public Camera getCamera() {
         return cam;
@@ -872,11 +892,17 @@ public class SpectreCameraController extends AbstractSpectreController {
         cam = camera;
         initialUpVec = cam.getUp().clone();
     }
-    private float minVerticalRotation = 0.00f;
-    private float maxVerticalRotation = FastMath.PI / 2;
-    private float minDistance = 1.0f;
-    private float maxDistance = 40.0f;
-    private float distance = 20;
+
+    @Override
+    protected void controlRender(RenderManager rm, ViewPort vp) {
+    }
+    private Camera cam = null;
+    private float heightOffset = 0.0f;//half of targets height to compensate for node being at bottom
+    private float minVerticalRotation = -FastMath.PI / 4f;//0.00f;
+    private float maxVerticalRotation = FastMath.PI / 3.5f;//FastMath.PI / 2;
+    private float minDistance = 6.0f;//1.0f;
+    private float maxDistance = 12.0f;//40.0f;
+    private float distance = maxDistance;//20;
     private float zoomSpeed = 2f;
     private float rotationSpeed = 1.0f;
     private float rotation = 0;
@@ -915,9 +941,12 @@ public class SpectreCameraController extends AbstractSpectreController {
     private Vector3f temp = new Vector3f(0, 0, 0);
     private boolean zoomin;
     private PhysicsSpace pSpace = null;
-    private Vector3f maxPos = new Vector3f();
     private float sensitivity = 2.5f;
     private Node rootNode;
     private Spatial lockOnTarget;
     private boolean lockOn;
+
+    public void ControlChanged() {
+        //NOT NEEDED
+    }
 }

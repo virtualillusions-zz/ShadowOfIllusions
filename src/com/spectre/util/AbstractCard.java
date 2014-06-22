@@ -48,6 +48,7 @@ public class AbstractCard {
                 setData(CardStats.SKILL_DESCRIPTION, "New Card Skill");
                 //Common type stats                
                 setData(CardStats.AUTO_USE, false);
+                setData(CardStats.IN_AIR, false);
                 setData(CardStats.LUNGE, 0);
                 setData(CardStats.DECREASE_PLAYER_KNOCKBACK, false);
                 setData(CardStats.SHUFFLE_SKILLS, false);
@@ -63,8 +64,8 @@ public class AbstractCard {
                 setData(CardStats.ATTACK_VELOCITY, 3);
                 setData(CardStats.SPECIAL_ATTACK_STRENGTH, SpecialAttackStrength.NONE);
                 setData(CardStats.HOLD_TO_POWER, false);
-                setData(CardStats.A_O_E, false);
-                setData(CardStats.A_O_E_Radius, 3);
+                setData(CardStats.A_O_E_Radius, 1);
+                setData(CardStats.A_O_E_Duration, 1);
                 setData(CardStats.ATTACK_CRAWLER, false);
                 setData(CardStats.ATTACK_PATH, AttackPath.LINEAR);
                 setData(CardStats.MINE_TYPE, MineType.REGULAR);

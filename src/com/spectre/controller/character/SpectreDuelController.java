@@ -4,12 +4,10 @@
  */
 package com.spectre.controller.character;
 
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
-import com.spectre.controller.character.impl.SpectreControl;
+import com.spectre.controller.character.impl.AbstractSpectreController;
+import com.spectre.controller.character.impl.DuelControl;
 import com.spectre.deck.Hand;
 import com.spectre.deck.card.Card;
 import com.spectre.deck.card.CardCharacteristics;
@@ -27,9 +25,8 @@ import java.util.LinkedList;
  * @author Kyle Williams
  */
 //TODO:Implement All stats in this class this includes speed attack speed as well as cardregeneration time
-public class SpectreDuelController extends AbstractControl implements SpectreControl {
+public class SpectreDuelController extends AbstractSpectreController implements DuelControl {
 
-    private SpectreAnimationController sac;//set in SpectrePlayerController    
     private static final int STARTING_LIFE_POINTS = 40;
     private static final int STARTING_MANA_LEVEL = 20;
     private static final float FOCUS_REPLENISH_RATE = 5f;
@@ -41,19 +38,6 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
     private boolean isPressed = false;
     private boolean overTotem = false;//is character touching totem? 
     private int cState;//character state healthy tired or injured used to prevent reseting of idle
-    private CardManifestController cmc = null;
-
-    public void startUp() {
-        cmc = new CardManifestController();
-        spatial.addControl(cmc);
-        attributes = new SpectreCharacterAttributes();
-    }
-
-    public void cleanUp() {
-        attributes = null;
-        spatial.removeControl(cmc);
-        spatial.removeControl(this);
-    }
 
     public boolean isOverTotem() {
         return overTotem;
@@ -62,8 +46,8 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
     @Override
     protected void controlUpdate(float tpf) {
 //Replenishes characters MP
-        if (attributes.FOCUS < attributes.FOCUS_LEVEL) {
-            if ((cfiTime) >= attributes.REPLENISH_RATE) {
+        if (attributes.getFOCUS() < attributes.getFOCUS_LEVEL()) {
+            if ((cfiTime) >= attributes.getREPLENISH_RATE()) {
                 attributes.FOCUS++;
                 cfiTime = 0;
             } else {
@@ -77,9 +61,9 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
 
 //Checks Character State and updates idle animation if any substantial changes
         int characterState = 1; //is the character 1.healthy, 2.tired or 3.injured
-        if (attributes.FOCUS <= attributes.FOCUS_LEVEL / 2) {
+        if (attributes.getFOCUS() <= attributes.getFOCUS_LEVEL() / 2) {
             characterState = 3;
-        } else if (attributes.HP <= attributes.BEGINING_HP / 2) {
+        } else if (attributes.getHP() <= attributes.getBEGINING_HP() / 2) {
             characterState = 2;
         }
         if (characterState != cState) {
@@ -94,12 +78,14 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
      * @param i Card Info To Display
      * @param pressed
      */
+    @Override
     public void cardInfo(int i, boolean isPressed) {
         //TODO: SpectreDuelController.cardInfo nifty
         System.out.println(SpectreDuelController.class.getName()
                 + ".cardInfo(" + i + ", " + isPressed + ")");
     }
 
+    @Override
     public void cardPressed(int cardNum, boolean isPressed) {
         //TODO: Somehow get card player is standing over then remove it from scene.
         if (overTotem) {
@@ -120,17 +106,17 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
         if (cards.getCard(cardNum).equals("")) {
             //This if statement is hollow to allow the method to reach after if statement
         } else if (!pressed) {
-            cmc.feedBack(cards.getCard(cardNum));
+            getManifestCont().feedBack(cards.getCard(cardNum));
             return;
         } else {
             String cardName = cards.getCard(cardNum);
             Card c = Director.getCard(cardName);
             //first check if card can be played
-            int mpCost = c.getData(CardStats.MP_COST);
-            int hpCost = c.getData(CardStats.HP_COST);
+            Integer mpCost = c.getData(CardStats.MP_COST);
+            Integer hpCost = c.getData(CardStats.HP_COST);
             String requireCard = c.getData(CardStats.REQUIRE_CARD);
-            boolean canPlay = attributes.FOCUS >= mpCost;
-            canPlay = canPlay && attributes.HP >= hpCost;
+            boolean canPlay = attributes.getFOCUS() >= mpCost;
+            canPlay = canPlay && attributes.getHP() >= hpCost;
 
             //Need to run a full check for required cards all cards must be present before user can play card
             boolean requiredCardCheck = true;
@@ -156,44 +142,60 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
                     i++;
                 }
             }
-            
-            canPlay = canPlay && requiredCardCheck;
 
+            canPlay = canPlay && requiredCardCheck;//checks to see if card has cards that must be present
+            canPlay = canPlay && !getManifestCont().isLocked();//check to see if card can be added to queue 
+            
+            
+            
+            
+            
+            
+            //TODO: add card attribute inAir and animation lock PROPERLY
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             if (canPlay == true) {
-                //add to card queue and check to see if it can be played 
-                //this call is how the card is enabled
-                canPlay = cmc.addToActiveQueue(c);
-                //if it can play then take requirements
-                if (canPlay == true) {
-                    attributes.FOCUS -= mpCost;
-                    attributes.HP -= hpCost;
-                    //must check and remove cards from hand if their are card requirements
-                    //use null check over boolean check to avoid new boolean above
-                    if (rCP != null) {
-                        for (int i = 0; i < rCP.length; i++) {
-                            Card tC = rCP[i];
-                            String tempString = tC.getName();
-                            int handPos = cards.getCardPosition(tempString);
-                            //increase use counter if has exceeded max use then remove from hand
-                            int maxUse = tC.getData(CardStats.MAX_USE);
-                            int use = cards.increaseUses(handPos);
-                            if (maxUse != CardCharacteristics.MAX_USE_INFINITE && use >= maxUse) {
-                                cards.setCard(handPos, "");
-                            }
-                            tempString = tC.getData(CardStats.REQUIRE_CARD);
-                            if (tempString.length() == 0 || tempString.equals(cardName)) {
-                                break;
-                            }
+                //add card to Queue additional checks are now irrelevant 
+                getManifestCont().addToActiveQueue(c);
+                //Take requirements
+                attributes.FOCUS -= mpCost;
+                attributes.HP -= hpCost;
+                //must check and remove cards from hand if their are card requirements
+                //use null check over boolean check to avoid new boolean above
+                if (rCP != null) {
+                    for (int i = 0; i < rCP.length; i++) {
+                        Card tC = rCP[i];
+                        String tempString = tC.getName();
+                        int handPos = cards.getCardPosition(tempString);
+                        //increase use counter if has exceeded max use then remove from hand
+                        Integer maxUse = tC.getData(CardStats.MAX_USE);
+                        int use = cards.increaseUses(handPos);
+                        if (maxUse != CardCharacteristics.MAX_USE_INFINITE && use >= maxUse) {
+                            cards.setCard(handPos, "");
+                        }
+                        //Check req card against card being played to prevent doubling use check and break loop
+                        tempString = tC.getData(CardStats.REQUIRE_CARD);
+                        if (tempString.length() == 0 || tempString.equals(cardName)) {
+                            break;
                         }
                     }
-                    //finally increase use counter if has exceeded max use then remove from hand
-                    int use = cards.increaseUses(cardNum);
-                    int maxUse = c.getData(CardStats.MAX_USE);
-                    if (maxUse != CardCharacteristics.MAX_USE_INFINITE && use >= maxUse) {
-                        cards.setCard(cardNum, "");
-                    }
-                    return;
                 }
+                //finally increase use counter if has exceeded max use then remove from hand
+                int use = cards.increaseUses(cardNum);
+                Integer maxUse = c.getData(CardStats.MAX_USE);
+                if (maxUse != CardCharacteristics.MAX_USE_INFINITE && use >= maxUse) {
+                    cards.setCard(cardNum, "");
+                }
+                return;
+
             }
         }
         //if it reaches here then card was not able to be played
@@ -216,6 +218,7 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
      *
      * @param pressed
      */
+    @Override
     public void gatherFocus(boolean pressed) {
         increaseFocusRate = pressed;
     }
@@ -223,6 +226,7 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
     /**
      * Shuffles Active Players Deck and hand
      */
+    @Override
     public void reshuffleDeck() {
         cards.shuffleDeck(deck);
     }
@@ -236,16 +240,16 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
         return deck.poll();
     }
 
-    /**
-     * A class that handles all animation for the model Set at characterLoading
-     *
-     * @return CharacterAnimationController
-     */
-    public SpectreAnimationController getAnimCont() {
-        if (sac == null) {
-            sac = spatial.getControl(SpectreAnimationController.class);
-        }
-        return sac;
+    @Override
+    public void startUp() {
+        getManifestCont().clearQueue();
+        attributes = new SpectreCharacterAttributes();
+    }
+
+    @Override
+    public void cleanUp() {
+        attributes = null;
+        getManifestCont().clearQueue();
     }
 
     @Override
@@ -257,8 +261,13 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
         //return secTwo;
     }
 
-    @Override
-    protected void controlRender(RenderManager rm, ViewPort vp) {
+    /**
+     * Returns attributes of the character
+     *
+     * @return
+     */
+    public SpectreCharacterAttributes getAttributes() {
+        return attributes;
     }
 
     /**
@@ -269,43 +278,106 @@ public class SpectreDuelController extends AbstractControl implements SpectreCon
         /**
          * Characters Life Points at the beginning of a match
          */
-        public int BEGINING_HP = STARTING_LIFE_POINTS;
+        private int BEGINING_HP = STARTING_LIFE_POINTS;
         /**
          * The Characters current Life Point value
          */
-        public int HP = BEGINING_HP;
+        private int HP = BEGINING_HP;
         /**
          * Indicates the speed at which the character replenishes MP
          */
-        public float REPLENISH_RATE = FOCUS_REPLENISH_RATE;
+        private float REPLENISH_RATE = FOCUS_REPLENISH_RATE;
         /**
          * The Characters current focus level which indicates the current
          * maximum MP the character can gather at one time
          */
-        public int FOCUS_LEVEL = STARTING_MANA_LEVEL;
+        private int FOCUS_LEVEL = STARTING_MANA_LEVEL;
         /**
          * The Characters current usable MP
          */
-        public int FOCUS = 0;
+        private int FOCUS = 0;
         /**
          * Characters current attack power<br/> 0 indicates normal and a
          * positive or negative value indicates a tenth percentile change
          */
-        public int POWER = 0;
+        private int POWER = 0;
         /**
          * Characters current projectile accuracy 0 indicates normal and a
          * positive or negative value indicates a tenth percentile change
          */
-        public int ACC = 0;
+        private int ACC = 0;
         /**
          * Characters movement speed. <br/> 0 indicates normal and a positive or
          * negative value indicates a tenth percentile change
          */
-        public int DEX = 0;
+        private int DEX = 0;
         /**
          * Characters Defense. <br/> 0 indicates normal and a positive or
          * negative value indicates a tenth percentile change
          */
-        public int CON = 0;
+        private int CON = 0;
+
+        /**
+         * @return the BEGINING_HP
+         */
+        public int getBEGINING_HP() {
+            return BEGINING_HP;
+        }
+
+        /**
+         * @return the HP
+         */
+        public int getHP() {
+            return HP;
+        }
+
+        /**
+         * @return the REPLENISH_RATE
+         */
+        public float getREPLENISH_RATE() {
+            return REPLENISH_RATE;
+        }
+
+        /**
+         * @return the FOCUS_LEVEL
+         */
+        public int getFOCUS_LEVEL() {
+            return FOCUS_LEVEL;
+        }
+
+        /**
+         * @return the FOCUS
+         */
+        public int getFOCUS() {
+            return FOCUS;
+        }
+
+        /**
+         * @return the POWER
+         */
+        public int getPOWER() {
+            return POWER;
+        }
+
+        /**
+         * @return the ACC
+         */
+        public int getACC() {
+            return ACC;
+        }
+
+        /**
+         * @return the DEX
+         */
+        public int getDEX() {
+            return DEX;
+        }
+
+        /**
+         * @return the CON
+         */
+        public int getCON() {
+            return CON;
+        }
     }
 }

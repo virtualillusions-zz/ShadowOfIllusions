@@ -25,4 +25,12 @@ public interface SpectreControl extends Control {
      * Called after the end of a Game
      */
     public void cleanUp();
+    
+    /**
+     * This is a required call when changing controls. The idea behind creating
+     * interfaces for each class allows subclasses of various controls not just
+     * the basic ones which makes the system more robust
+     * Note: Consider hijacking update statement and actively checking spatial for changes
+     */
+    public void ControlChanged();
 }
